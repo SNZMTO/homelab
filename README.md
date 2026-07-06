@@ -1,121 +1,123 @@
-# 🏠 Homelab — Infrastructure sécurisée de A à Z
+# 🏠 Homelab — Building Secure Infrastructure from Scratch
 
-> Projet personnel de montée en compétences infra/sécurité/DevOps, construit sur un VPS réel exposé sur Internet — pas une VM locale isolée. Chaque phase est documentée avec les décisions prises, les erreurs rencontrées, et pourquoi elles ont été corrigées ainsi.
+> A hands-on infrastructure/security/DevOps project built on a real, internet-facing VPS — not an isolated local VM. Every phase is documented with the decisions made, the mistakes hit along the way, and why they were fixed the way they were.
 
-## 🎯 Objectif du projet
+## 🎯 Project Goal
 
-Concevoir, sécuriser et faire évoluer une infrastructure complète — du serveur nu jusqu'à l'orchestration de conteneurs — en appliquant des pratiques de production réelles : moindre privilège, infrastructure as code, monitoring, CI/CD.
+Design, secure, and evolve a complete infrastructure — from a bare server up to container orchestration — applying real production practices: least privilege, infrastructure as code, monitoring, CI/CD.
 
-Ce repo sert à la fois de **terrain d'entraînement technique** et de **preuve de compétences** vérifiable (rien n'est simulé : le serveur est réellement en ligne, réellement attaqué par des bots comme tout serveur exposé, et réellement durci en réponse).
+This repo serves both as a **technical training ground** and as **verifiable proof of skills**: nothing here is simulated. The server is genuinely online, genuinely targeted by bots like any exposed server, and genuinely hardened in response.
 
-## 🗺️ Architecture cible
+## 🗺️ Target Architecture
 
 ```mermaid
-flowchart TB
-    subgraph internet["🌍 Internet"]
-        user["👤 Utilisateur / Visiteur"]
-        gh["🐙 GitHub (CI/CD)"]
+flowchart LR
+    User(["👤 User / Visitor"])
+    GitHub[["🐙 GitHub Actions"]]
+
+    subgraph VPS["🖥️ OVH VPS"]
+        direction TB
+        SSH["🔐 SSH — key-only auth"]
+        FW["🛡️ ufw firewall"]
+        F2B["🚫 fail2ban"]
+        Caddy["🔀 Caddy — reverse proxy + HTTPS"]
+        App["📦 Web service(s)"]
+        Prom["📊 Prometheus"]
+        Graf["📈 Grafana"]
     end
 
-    subgraph vps["🖥️ VPS OVH"]
-        subgraph secu["🛡️ Sécurité système"]
-            ssh["SSH par clé uniquement"]
-            fw["Firewall (ufw)"]
-            f2b["fail2ban"]
-        end
-
-        caddy["🔀 Caddy — reverse proxy + HTTPS"]
-
-        subgraph docker["🐳 Docker Compose"]
-            app["Service(s) web"]
-            prom["Prometheus"]
-            graf["Grafana"]
-        end
+    subgraph IaC["📜 Infrastructure as Code"]
+        Ansible["Ansible"]
+        Terraform["Terraform"]
     end
 
-    subgraph iac["📜 Infrastructure as Code"]
-        ansible["Ansible"]
-        tf["Terraform"]
-    end
+    Cloud["☁️ AWS free tier (optional)"]
 
-    aws["☁️ AWS free tier (optionnel)"]
-    k3s["⎈ k3s / Kubernetes léger"]
+    User -->|HTTPS| Caddy
+    GitHub -->|deploy via SSH| VPS
+    Caddy --> App
+    Caddy --> Graf
+    Prom --> App
+    Graf --> Prom
+    Ansible -.configures.-> VPS
+    Terraform -.provisions.-> Cloud
 
-    user -->|HTTPS| caddy
-    gh -->|déploiement via SSH| vps
-    caddy --> app
-    caddy --> graf
-    prom --> app
-    graf --> prom
-    ansible -.configure.-> vps
-    tf -.provisionne.-> aws
+    classDef done fill:#2ea043,stroke:#1a6b2b,color:#fff
+    classDef inprogress fill:#d29922,stroke:#9a6d16,color:#000
+    classDef planned fill:#6e7681,stroke:#484f58,color:#fff
+
+    class SSH done
+    class FW inprogress
+    class F2B,Caddy,App,Prom,Graf,Ansible,Terraform,Cloud planned
 ```
 
-## 📋 Feuille de route
+🟢 Done · 🟡 In progress · ⚪ Planned
 
-### Phase 1 — Durcissement Linux 🔄 *en cours*
-- [x] Audit de la configuration système livrée par l'hébergeur
-- [x] Authentification SSH par clé Ed25519 uniquement
-- [x] Connexion `root` totalement désactivée en SSH
-- [ ] Firewall (`ufw`) — trafic entrant limité au strict nécessaire
-- [ ] `fail2ban` — bannissement automatique des tentatives d'intrusion
-- [ ] Mises à jour automatiques et hygiène système
+## 📋 Roadmap
 
-### Phase 2 — Conteneurisation 📌 *à venir*
+### Phase 1 — Linux Hardening 🔄 *in progress*
+- [x] Audited the system configuration shipped by the hosting provider
+- [x] SSH authentication restricted to Ed25519 key pairs only
+- [x] `root` login fully disabled over SSH
+- [ ] Firewall (`ufw`) — restrict inbound traffic to the strict minimum
+- [ ] `fail2ban` — automatic banning of intrusion attempts
+- [ ] Automatic updates and general system hygiene
+
+### Phase 2 — Containerization 📌 *planned*
 - [ ] Docker & Docker Compose
-- [ ] Premier service applicatif conteneurisé
+- [ ] First containerized application service
 
-### Phase 3 — Exposition web sécurisée 📌 *à venir*
-- [ ] Nom de domaine + DNS
-- [ ] Reverse proxy Caddy + certificats HTTPS automatiques
+### Phase 3 — Secure Web Exposure 📌 *planned*
+- [ ] Domain name + DNS
+- [ ] Caddy reverse proxy + automatic HTTPS certificates
 
-### Phase 4 — CI/CD 📌 *à venir*
-- [ ] Pipeline GitHub Actions : test → build → déploiement automatique
+### Phase 4 — CI/CD 📌 *planned*
+- [ ] GitHub Actions pipeline: test → build → automatic deployment
 
-### Phase 5 — Observabilité 📌 *à venir*
-- [ ] Prometheus (métriques) + Grafana (dashboards)
+### Phase 5 — Observability 📌 *planned*
+- [ ] Prometheus (metrics) + Grafana (dashboards)
 
-### Phase 6 — Ansible 📌 *à venir*
-- [ ] Configuration du serveur entièrement rejouable depuis ce repo
+### Phase 6 — Ansible 📌 *planned*
+- [ ] Fully reproducible server configuration, driven from this repo
 
-### Phase 7 — Terraform 📌 *à venir*
-- [ ] Provisionnement d'infrastructure as code
+### Phase 7 — Terraform 📌 *planned*
+- [ ] Infrastructure provisioning as code
 
-### Phase 8 — Cloud public 📌 *optionnel*
-- [ ] Extension vers AWS free tier
+### Phase 8 — Public Cloud 📌 *optional*
+- [ ] Extension to AWS free tier
 
-### Phase 9 — Orchestration 📌 *optionnel*
-- [ ] k3s / Kubernetes léger
+### Phase 9 — Orchestration 📌 *optional*
+- [ ] Lightweight k3s / Kubernetes
 
-## 🛡️ Points de sécurité déjà en place
+## 🛡️ Security Measures Already in Place
 
-| Mesure | Statut |
+| Measure | Status |
 |---|---|
-| Authentification par clé uniquement (pas de mot de passe SSH) | ✅ |
-| Login `root` bloqué en SSH | ✅ |
-| Configuration SSH versionnée, indépendante des fichiers auto-générés (`cloud-init`) | ✅ |
-| Pare-feu actif | ⏳ Phase 1.3 |
-| Bannissement automatique des IP malveillantes | ⏳ Phase 1.4 |
+| Key-only SSH authentication (no password login) | ✅ |
+| `root` login disabled over SSH | ✅ |
+| SSH config versioned and independent from auto-generated files (`cloud-init`) | ✅ |
+| Active firewall | ⏳ Phase 1.3 |
+| Automatic banning of malicious IPs | ⏳ Phase 1.4 |
 
-## 📁 Structure du repo
+## 📁 Repo Structure
 
 ```
 homelab/
-├── README.md                          # ce fichier
+├── README.md                          # this file
 └── docs/
-    └── phase1-ssh-hardening.md        # journal détaillé : audit, décisions, commandes
+    └── phase1-ssh-hardening.md        # detailed log: audit, decisions, commands
 ```
 
-*(la structure s'enrichira à chaque phase : `ansible/`, `terraform/`, `docker/`, etc.)*
+*(structure will grow with each phase: `ansible/`, `terraform/`, `docker/`, etc.)*
 
-## 🧰 Stack technique (prévisionnelle)
+## 🧰 Tech Stack (planned)
 
 `Debian 13` · `OpenSSH` · `ufw` · `fail2ban` · `Docker` · `Caddy` · `GitHub Actions` · `Ansible` · `Terraform` · `Prometheus` · `Grafana` · `k3s`
 
-## 📖 Contexte
+## 📖 Background
 
-Projet mené en parallèle du cursus 42 (Born2beRoot, cybersécurité), avec l'objectif d'appliquer en conditions réelles ce qui y est vu en environnement contrôlé — et d'aller au-delà, jusqu'à une infrastructure de production complète et documentée.
+This project runs alongside the 42 school curriculum (Born2beRoot, cybersecurity track), with the goal of applying what's learned there in a controlled environment to a real, production-grade setup — and going further, toward a complete and fully documented infrastructure.
 
 ---
 
-*Chaque phase possède son propre journal détaillé dans `docs/`, avec les commandes exactes, les pièges rencontrés, et le raisonnement derrière chaque choix technique.*
+*Each phase has its own detailed log in `docs/`, with exact commands, pitfalls encountered, and the reasoning behind every technical choice.*
