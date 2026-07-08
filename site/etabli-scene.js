@@ -48,6 +48,12 @@
     sage: 0x8CA36F,
     mustard: 0xD9A441,
     brass: 0xC08F3C,
+    copper: 0xB1592E,
+    copperDark: 0x89401F,
+    noir: 0x272320,
+    noirLite: 0x3B3530,
+    steel: 0x3E7C86,
+    steelDark: 0x2C5E67,
     darkwood: 0x8C5A2F,
     brown: 0x5B4224,
     grey: 0xA09585,
@@ -273,14 +279,14 @@
       /* --- loupe --- */
       function buildLoupe() {
         var g = new T.Group();
-        var ring = mesh(new T.TorusGeometry(0.24, 0.055, 8, 22), mat(P.brass), 0, 0.062, 0);
+        var ring = mesh(new T.TorusGeometry(0.24, 0.055, 8, 22), mat(P.steel, { flatShading: false }), 0, 0.062, 0);
         ring.rotation.x = Math.PI / 2;
         g.add(ring);
         g.add(mesh(new T.CylinderGeometry(0.2, 0.2, 0.03, 22), mat(P.glass, { transparent: true, opacity: 0.85, flatShading: false }), 0, 0.062, 0));
-        var collar = mesh(new T.CylinderGeometry(0.06, 0.06, 0.1, 8), mat(P.brass), 0.33, 0.058, 0);
+        var collar = mesh(new T.CylinderGeometry(0.06, 0.06, 0.1, 8), mat(P.steelDark), 0.33, 0.058, 0);
         collar.rotation.z = Math.PI / 2;
         g.add(collar);
-        var handle = mesh(new T.CapsuleGeometry(0.048, 0.34, 3, 8), mat(P.darkwood), 0.56, 0.055, 0);
+        var handle = mesh(new T.CapsuleGeometry(0.048, 0.34, 3, 8), mat(P.steelDark), 0.56, 0.055, 0);
         handle.rotation.z = Math.PI / 2;
         g.add(handle);
         return { g: g, top: 0.14, hit: [1.15, 0.42, 0.72], hc: [0.22, 0.16, 0] };
@@ -319,9 +325,9 @@
         cover.add(mesh(new T.BoxGeometry(0.035, 0.014, 0.855), mat(0x7E4433), 0.495, 0.027, 0));
         g.add(cover);
         /* reliure spirale métallique sur la tranche gauche */
-        var spiralM = mat(0xC6C6CC, { flatShading: false });
-        for (var sci = -3.5; sci <= 3.5; sci++) {
-          var sring = mesh(new T.TorusGeometry(0.033, 0.009, 6, 14), spiralM, -0.3, 0.09, sci * 0.1);
+        var spiralM = mat(0xB9BEC4, { flatShading: false });
+        for (var sci = -4.5; sci <= 4.5; sci++) {
+          var sring = mesh(new T.TorusGeometry(0.058, 0.012, 8, 16), spiralM, -0.315, 0.075, sci * 0.088);
           sring.castShadow = false;
           g.add(sring);
         }
@@ -464,14 +470,14 @@
       /* --- manomètre --- */
       function buildGauge() {
         var g = new T.Group();
-        g.add(mesh(rbox(0.2, 0.05, 0.15, 0.03), mat(0x9C7431), 0, 0.025, 0.01));
-        var body = mesh(new T.CylinderGeometry(0.2, 0.2, 0.12, 18), mat(P.brass, { flatShading: false }), 0, 0.25, 0);
+        g.add(mesh(rbox(0.2, 0.05, 0.15, 0.03), mat(P.copperDark), 0, 0.025, 0.01));
+        var body = mesh(new T.CylinderGeometry(0.2, 0.2, 0.12, 18), mat(P.copper, { flatShading: false }), 0, 0.25, 0);
         body.rotation.x = Math.PI / 2;
         g.add(body);
         var face = mesh(new T.CylinderGeometry(0.163, 0.163, 0.022, 18), mat(P.paper, { flatShading: false }), 0, 0.25, 0.058);
         face.rotation.x = Math.PI / 2;
         g.add(face);
-        var rim = mesh(new T.TorusGeometry(0.172, 0.02, 8, 20), mat(P.brass, { flatShading: false }), 0, 0.25, 0.068);
+        var rim = mesh(new T.TorusGeometry(0.172, 0.02, 8, 20), mat(P.copper, { flatShading: false }), 0, 0.25, 0.068);
         g.add(rim);
         var tickM = mat(P.brown);
         for (var i = 0; i <= 8; i++) {
@@ -486,7 +492,7 @@
         needle.rotation.z = 0.6;
         g.add(needle);
         registry.needle = needle;
-        var cap = mesh(new T.CylinderGeometry(0.022, 0.022, 0.016, 10), mat(0x9C7431), 0, 0.25, 0.084);
+        var cap = mesh(new T.CylinderGeometry(0.022, 0.022, 0.016, 10), mat(P.copperDark), 0, 0.25, 0.084);
         cap.rotation.x = Math.PI / 2;
         g.add(cap);
         g.rotation.x = -0.12;
@@ -610,7 +616,7 @@
         topCover.add(mesh(new T.BoxGeometry(0.26, 0.006, 0.03), mat(P.tealDeep), 0.515, 0.0205, -0.03));
         topCover.add(mesh(new T.BoxGeometry(0.17, 0.006, 0.02), mat(0xC9B891), 0.515, 0.0205, 0.035));
         g.add(topCover);
-        var spine = mesh(new T.CylinderGeometry(0.083, 0.083, 0.65, 10, 1, false, 0, Math.PI), coverM, -0.475, 0.083, 0);
+        var spine = mesh(new T.CylinderGeometry(0.092, 0.092, 0.66, 14, 1, false, 0, Math.PI), coverM, -0.475, 0.089, 0);
         spine.rotation.x = Math.PI / 2; spine.rotation.z = Math.PI;
         g.add(spine);
         var bm = mesh(new T.BoxGeometry(0.055, 0.008, 0.2), mat(P.mustard), 0.18, 0.03, 0.42);
@@ -934,7 +940,7 @@
         par.x += (wantX - par.x) * 0.06;
         par.y += (wantY - par.y) * 0.06;
         tmpV.copy(curDir).multiplyScalar(curDist).add(LOOK);
-        camera.position.set(tmpV.x + par.x * 0.3, tmpV.y + par.y * 0.14, tmpV.z);
+        camera.position.set(tmpV.x + par.x * 0.52, tmpV.y + par.y * 0.30, tmpV.z);
         camera.lookAt(LOOK);
 
         /* étiquettes */
@@ -1021,8 +1027,8 @@
             var raw = landscape ? (e.beta || 0) : (e.gamma || 0);
             var rawY = landscape ? (e.gamma || 0) : (e.beta || 0);
             if (self._tiltBase == null) self._tiltBase = rawY;
-            var gx = Math.max(-1, Math.min(1, raw / 22));
-            var gy = Math.max(-1, Math.min(1, (rawY - self._tiltBase) / 22));
+            var gx = Math.max(-1, Math.min(1, raw / 18));
+            var gy = Math.max(-1, Math.min(1, (rawY - self._tiltBase) / 18));
             self._tilt.x = gx;
             self._tilt.y = -gy;
           };
