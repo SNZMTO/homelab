@@ -1,0 +1,1237 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&amp;family=Nunito:wght@400;600;700;800&amp;family=Caveat:wght@500;600&amp;display=swap" rel="stylesheet">
+  <style>
+    html, body { margin: 0; padding: 0; background: #F2EAD9; }
+    body { font-family: 'Nunito', 'Helvetica Neue', sans-serif; color: #4A3521; }
+    a { color: #2F6F7A; }
+    a:hover { color: #3E8E9C; }
+    ::selection { background: #E2725B; color: #FFF6E8; }
+    @keyframes sectionIn {
+      from { opacity: 0; transform: scale(1.06); }
+      to { opacity: 1; transform: scale(1); }
+    }
+  </style>
+</helmet>
+<div style="display:flex; flex-direction:column; height:100dvh; min-height:520px; overflow:hidden; background:#F2EAD9; position:relative;">
+
+  <header data-screen-label="Accueil — Établi 3D" style="text-align:center; padding:26px 20px 2px; position:relative; z-index:2; pointer-events:none; flex:none;">
+    <sc-if value="{{showKicker}}" hint-placeholder-val="{{true}}">
+      <div style="font-family:'Nunito',sans-serif; font-weight:800; font-size:11px; letter-spacing:0.26em; color:#A9885C; text-transform:uppercase;">Homelab · DevOps · Portfolio</div>
+    </sc-if>
+    <h1 style="font-family:'Fredoka',sans-serif; font-weight:600; font-size:clamp(30px, 4.6vw, 50px); line-height:1.1; margin:8px 0 6px; color:#4A3521;">L'Établi</h1>
+    <sc-if value="{{showSubtitle}}" hint-placeholder-val="{{true}}">
+      <p style="font-family:'Nunito',sans-serif; font-weight:600; font-size:15px; line-height:1.5; color:#8C6A4F; margin:0;">Mon homelab, posé sur la table. Survolez un objet, cliquez pour explorer.</p>
+    </sc-if>
+  </header>
+
+  <div style="flex:1 1 auto; min-height:280px; position:relative;">
+    <x-import component-from-global-scope="etabli-scene" from="./etabli-scene.js" show-labels="{{showLabelsStr}}" parallax="{{parallaxStr}}" wood="{{woodStr}}" touch-preview="{{touchPreviewStr}}" style="position:absolute; inset:0;" hint-size="100%,100%"></x-import>
+    <sc-if value="{{sceneFailed}}" hint-placeholder-val="{{false}}">
+      <div role="alert" style="position:absolute; inset:0; z-index:6; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:24px; padding:clamp(20px,4vw,40px); background:#F2EAD9; overflow-y:auto; text-align:center;">
+        <div style="max-width:540px;">
+          <div style="display:inline-flex; align-items:center; gap:9px; background:rgba(226,114,91,0.14); color:#C85A45; border-radius:999px; padding:6px 15px 6px 11px; font-family:'Nunito',sans-serif; font-weight:800; font-size:12px; letter-spacing:0.05em; text-transform:uppercase;">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4"></path><path d="M12 17h.01"></path><path d="M10.3 3.9 2.4 18a2 2 0 0 0 1.7 3h15.8a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"></path></svg>
+            Mode secours
+          </div>
+          <h2 style="font-family:'Fredoka',sans-serif; font-weight:600; font-size:clamp(21px,3.4vw,27px); line-height:1.15; color:#4A3521; margin:14px 0 0;">La scène 3D ne peut pas s'afficher</h2>
+          <p style="font-family:'Nunito',sans-serif; font-weight:600; font-size:15px; line-height:1.55; color:#8C6A4F; margin:10px 0 0;">Votre navigateur n'arrive pas à afficher l'établi en 3D (WebGL indisponible ou désactivé). Pas de souci — voici le menu pour explorer chaque section.</p>
+        </div>
+        <nav aria-label="Navigation des sections" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:10px; width:100%; max-width:580px;">
+          <sc-for list="{{fallbackItems}}" as="it" hint-placeholder-count="8">
+            <button type="button" data-id="{{it.id}}" data-label="{{it.label}}" onClick="{{go}}" style="display:flex; align-items:center; gap:11px; font-family:'Nunito',sans-serif; font-weight:700; font-size:14.5px; color:#4A3521; background:rgba(255,252,244,0.85); border:1.5px solid #DCC9A3; border-radius:14px; padding:13px 16px; cursor:pointer; min-height:48px; text-align:left;" style-hover="border-color:#C7AE82; background:#FFFCF4;">
+              <span style="width:10px; height:10px; border-radius:50%; background:{{it.color}}; flex:none;"></span>
+              {{it.label}}
+            </button>
+          </sc-for>
+        </nav>
+      </div>
+    </sc-if>
+  </div>
+
+  <sc-if value="{{mobileBarShow}}" hint-placeholder-val="{{false}}">
+    <div style="position:absolute; left:0; right:0; bottom:0; z-index:4; padding:12px 14px calc(14px + env(safe-area-inset-bottom)); pointer-events:none;">
+
+      <sc-if value="{{previewActive}}" hint-placeholder-val="{{false}}">
+        <div style="pointer-events:auto; max-width:520px; margin:0 auto; background:rgba(251,245,230,0.97); border:1.5px solid rgba(150,115,70,0.4); border-radius:20px; box-shadow:0 18px 44px rgba(60,35,10,0.32); padding:15px 16px 16px; animation:sectionIn 0.28s ease;">
+          <div style="display:flex; align-items:center; gap:11px;">
+            <span style="width:13px; height:13px; border-radius:50%; background:{{previewColor}}; flex:none; box-shadow:0 0 0 4px rgba(0,0,0,0.05);"></span>
+            <div style="font-family:'Fredoka',sans-serif; font-weight:600; font-size:19px; color:#4A3521; flex:1 1 auto; line-height:1.1;">{{previewLabel}}</div>
+            <button type="button" onClick="{{closePreview}}" aria-label="Fermer" style="width:34px; height:34px; border:none; background:rgba(140,106,79,0.12); border-radius:50%; color:#8C6A4F; font-size:20px; line-height:1; cursor:pointer; flex:none;">&times;</button>
+          </div>
+          <p style="font-family:'Nunito',sans-serif; font-weight:600; font-size:14.5px; line-height:1.5; color:#8C6A4F; margin:10px 2px 15px;">{{previewDesc}}</p>
+          <button type="button" onClick="{{openPreview}}" style="width:100%; display:flex; align-items:center; justify-content:center; gap:8px; min-height:48px; background:#4A3521; color:#F7EDDC; border:none; border-radius:14px; font-family:'Fredoka',sans-serif; font-weight:500; font-size:16px; cursor:pointer;" style-hover="background:#5E442B;">
+            Ouvrir la section
+            <span aria-hidden="true">&rarr;</span>
+          </button>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{noPreview}}" hint-placeholder-val="{{true}}">
+        <div style="pointer-events:auto; max-width:520px; margin:0 auto; display:flex; align-items:center; gap:10px; background:rgba(251,245,230,0.92); border:1.5px solid rgba(150,115,70,0.3); border-radius:999px; box-shadow:0 10px 26px rgba(60,35,10,0.2); padding:7px 8px 7px 17px;">
+          <span style="font-family:'Nunito',sans-serif; font-weight:700; font-size:13.5px; color:#8C6A4F; flex:1 1 auto; line-height:1.3;">{{tiltHint}}</span>
+          <sc-if value="{{tiltOn}}" hint-placeholder-val="{{false}}">
+            <button type="button" onClick="{{toggleTilt}}" aria-pressed="true" style="display:inline-flex; align-items:center; gap:7px; flex:none; min-height:40px; background:#3E8E9C; color:#F7EDDC; border:1.5px solid #3E8E9C; border-radius:999px; padding:0 15px; font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; cursor:pointer;">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.5"></circle><path d="M12 2.5v3"></path><path d="M12 18.5v3"></path><path d="M2.5 12h3"></path><path d="M18.5 12h3"></path></svg>
+              Mouvement activ&eacute;
+            </button>
+          </sc-if>
+          <sc-if value="{{tiltOff}}" hint-placeholder-val="{{true}}">
+            <button type="button" onClick="{{toggleTilt}}" aria-pressed="false" style="display:inline-flex; align-items:center; gap:7px; flex:none; min-height:40px; background:rgba(255,252,244,0.9); color:#6E5232; border:1.5px solid #DCC9A3; border-radius:999px; padding:0 15px; font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; cursor:pointer;" style-hover="border-color:#C7AE82;">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.5"></circle><path d="M12 2.5v3"></path><path d="M12 18.5v3"></path><path d="M2.5 12h3"></path><path d="M18.5 12h3"></path></svg>
+              Activer le mouvement
+            </button>
+          </sc-if>
+        </div>
+      </sc-if>
+
+    </div>
+  </sc-if>
+
+  <sc-if value="{{inSection}}" hint-placeholder-val="{{false}}">
+    <div style="position:absolute; inset:0; z-index:5; overflow-y:auto; overflow-x:hidden; overscroll-behavior:contain; animation:sectionIn 0.55s cubic-bezier(.22,1,.36,1); background:{{viewBg}};">
+
+      <div style="position:sticky; top:14px; z-index:6; display:flex; justify-content:center; padding:0 14px; pointer-events:none;">
+        <div style="pointer-events:auto; display:flex; align-items:center; gap:6px; max-width:100%; overflow-x:auto; background:rgba(251,245,230,0.94); border:1.5px solid rgba(150,115,70,0.35); border-radius:999px; padding:7px 9px; box-shadow:0 12px 30px rgba(60,35,10,0.22);">
+          <button type="button" onClick="{{retour}}" style="display:inline-flex; align-items:center; gap:9px; background:#4A3521; color:#F7EDDC; border:none; border-radius:999px; padding:9px 17px 9px 14px; font-family:'Fredoka',sans-serif; font-weight:500; font-size:14.5px; cursor:pointer; white-space:nowrap; flex:none;" style-hover="background:#5E442B;">
+            <span aria-hidden="true">←</span>
+            Retour à l'établi
+          </button>
+          <span style="width:1.5px; height:22px; background:rgba(150,115,70,0.3); flex:none;"></span>
+          <nav aria-label="Aller à une autre section" style="display:flex; gap:3px; flex:none;">
+            <button type="button" data-id="homelab" title="Le homelab" aria-label="Le homelab" onClick="{{go}}" style="position:relative; width:38px; height:38px; display:flex; align-items:center; justify-content:center; border:1.5px solid transparent; background:transparent; border-radius:12px; cursor:pointer; color:#8C6A4F; flex:none;" style-hover="background:rgba(140,106,79,0.12); border-color:rgba(150,115,70,0.3);">
+              <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="10.5" cy="10.5" r="5.5"></circle><line x1="14.8" y1="14.8" x2="20" y2="20"></line></svg>
+              <sc-if value="{{isHomelab}}" hint-placeholder-val="{{false}}"><span style="position:absolute; bottom:2px; left:50%; transform:translateX(-50%); width:14px; height:3px; border-radius:2px; background:#3E8E9C;"></span></sc-if>
+            </button>
+            <button type="button" data-id="projet" title="Le projet" aria-label="Le projet" onClick="{{go}}" style="position:relative; width:38px; height:38px; display:flex; align-items:center; justify-content:center; border:1.5px solid transparent; background:transparent; border-radius:12px; cursor:pointer; color:#8C6A4F; flex:none;" style-hover="background:rgba(140,106,79,0.12); border-color:rgba(150,115,70,0.3);">
+              <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="3.5" width="15" height="17" rx="2.5"></rect><line x1="15" y1="3.5" x2="15" y2="20.5"></line></svg>
+              <sc-if value="{{isProjet}}" hint-placeholder-val="{{false}}"><span style="position:absolute; bottom:2px; left:50%; transform:translateX(-50%); width:14px; height:3px; border-radius:2px; background:#E2725B;"></span></sc-if>
+            </button>
+            <button type="button" data-id="architecture" title="Architecture" aria-label="Architecture" onClick="{{go}}" style="position:relative; width:38px; height:38px; display:flex; align-items:center; justify-content:center; border:1.5px solid transparent; background:transparent; border-radius:12px; cursor:pointer; color:#8C6A4F; flex:none;" style-hover="background:rgba(140,106,79,0.12); border-color:rgba(150,115,70,0.3);">
+              <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="14" rx="2"></rect><line x1="9.2" y1="5" x2="9.2" y2="19"></line><line x1="14.8" y1="5" x2="14.8" y2="19"></line></svg>
+              <sc-if value="{{isArchitecture}}" hint-placeholder-val="{{false}}"><span style="position:absolute; bottom:2px; left:50%; transform:translateX(-50%); width:14px; height:3px; border-radius:2px; background:#7F9C6B;"></span></sc-if>
+            </button>
+            <button type="button" data-id="stack" title="La stack" aria-label="La stack" onClick="{{go}}" style="position:relative; width:38px; height:38px; display:flex; align-items:center; justify-content:center; border:1.5px solid transparent; background:transparent; border-radius:12px; cursor:pointer; color:#8C6A4F; flex:none;" style-hover="background:rgba(140,106,79,0.12); border-color:rgba(150,115,70,0.3);">
+              <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="8.5" width="17" height="11" rx="2"></rect><path d="M9 8.5 V7 a3 3 0 0 1 6 0 v1.5"></path><line x1="3.5" y1="13" x2="20.5" y2="13"></line></svg>
+              <sc-if value="{{isStack}}" hint-placeholder-val="{{false}}"><span style="position:absolute; bottom:2px; left:50%; transform:translateX(-50%); width:14px; height:3px; border-radius:2px; background:#E8703A;"></span></sc-if>
+            </button>
+            <button type="button" data-id="monitoring" title="Monitoring" aria-label="Monitoring" onClick="{{go}}" style="position:relative; width:38px; height:38px; display:flex; align-items:center; justify-content:center; border:1.5px solid transparent; background:transparent; border-radius:12px; cursor:pointer; color:#8C6A4F; flex:none;" style-hover="background:rgba(140,106,79,0.12); border-color:rgba(150,115,70,0.3);">
+              <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"></circle><line x1="12" y1="12" x2="16.2" y2="8.6"></line><circle cx="12" cy="12" r="1.4" fill="currentColor" stroke="none"></circle></svg>
+              <sc-if value="{{isMonitoring}}" hint-placeholder-val="{{false}}"><span style="position:absolute; bottom:2px; left:50%; transform:translateX(-50%); width:14px; height:3px; border-radius:2px; background:#C89A42;"></span></sc-if>
+            </button>
+            <button type="button" data-id="journal" title="Journal" aria-label="Journal" onClick="{{go}}" style="position:relative; width:38px; height:38px; display:flex; align-items:center; justify-content:center; border:1.5px solid transparent; background:transparent; border-radius:12px; cursor:pointer; color:#8C6A4F; flex:none;" style-hover="background:rgba(140,106,79,0.12); border-color:rgba(150,115,70,0.3);">
+              <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5.5" width="17" height="14" rx="2.5"></rect><line x1="3.5" y1="10" x2="20.5" y2="10"></line><line x1="8" y1="3.5" x2="8" y2="7"></line><line x1="16" y1="3.5" x2="16" y2="7"></line></svg>
+              <sc-if value="{{isJournal}}" hint-placeholder-val="{{false}}"><span style="position:absolute; bottom:2px; left:50%; transform:translateX(-50%); width:14px; height:3px; border-radius:2px; background:#B5654D;"></span></sc-if>
+            </button>
+            <button type="button" data-id="glossaire" title="Glossaire" aria-label="Glossaire" onClick="{{go}}" style="position:relative; width:38px; height:38px; display:flex; align-items:center; justify-content:center; border:1.5px solid transparent; background:transparent; border-radius:12px; cursor:pointer; color:#8C6A4F; flex:none;" style-hover="background:rgba(140,106,79,0.12); border-color:rgba(150,115,70,0.3);">
+              <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="3.5" width="15" height="17" rx="2"></rect><line x1="8.5" y1="3.5" x2="8.5" y2="20.5"></line><line x1="12" y1="8" x2="16" y2="8"></line></svg>
+              <sc-if value="{{isGlossaire}}" hint-placeholder-val="{{false}}"><span style="position:absolute; bottom:2px; left:50%; transform:translateX(-50%); width:14px; height:3px; border-radius:2px; background:#2F6F7A;"></span></sc-if>
+            </button>
+            <button type="button" data-id="contact" title="Contact / CV" aria-label="Contact / CV" onClick="{{go}}" style="position:relative; width:38px; height:38px; display:flex; align-items:center; justify-content:center; border:1.5px solid transparent; background:transparent; border-radius:12px; cursor:pointer; color:#8C6A4F; flex:none;" style-hover="background:rgba(140,106,79,0.12); border-color:rgba(150,115,70,0.3);">
+              <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6.5" width="18" height="11" rx="2"></rect><circle cx="8" cy="12" r="1.8"></circle><line x1="12" y1="10.5" x2="17.5" y2="10.5"></line><line x1="12" y1="13.5" x2="15.5" y2="13.5"></line></svg>
+              <sc-if value="{{isContact}}" hint-placeholder-val="{{false}}"><span style="position:absolute; bottom:2px; left:50%; transform:translateX(-50%); width:14px; height:3px; border-radius:2px; background:#8C6A4F;"></span></sc-if>
+            </button>
+          </nav>
+        </div>
+      </div>
+
+      <sc-if value="{{isHomelab}}" hint-placeholder-val="{{false}}">
+        <section data-screen-label="Section — Le homelab" style="position:relative; padding:clamp(22px,4vw,40px) 0 90px;">
+          <div aria-hidden="true" style="position:fixed; inset:0; pointer-events:none; overflow:hidden;">
+            <div style="position:absolute; left:-4%; top:7%; font-family:ui-monospace,Menlo,monospace; font-weight:700; font-size:clamp(90px,15vw,180px); color:rgba(47,111,122,0.07); filter:blur(2.5px); white-space:nowrap; transform:rotate(-4deg);">sshd: Accepted publickey</div>
+            <div style="position:absolute; right:-8%; top:40%; font-family:ui-monospace,Menlo,monospace; font-weight:700; font-size:clamp(80px,13vw,160px); color:rgba(83,56,31,0.06); filter:blur(3px); white-space:nowrap; transform:rotate(-4deg);">ufw BLOCK 203.0.113.7</div>
+            <div style="position:absolute; left:-2%; bottom:3%; font-family:'Fredoka',sans-serif; font-weight:600; font-size:clamp(100px,17vw,210px); color:rgba(62,142,156,0.06); filter:blur(2px); white-space:nowrap; transform:rotate(-4deg);">homelab</div>
+          </div>
+          <div aria-hidden="true" style="position:fixed; inset:0; pointer-events:none; background:radial-gradient(ellipse at 50% 34%, rgba(255,255,255,0.5), transparent 52%), radial-gradient(ellipse at 50% 50%, transparent 56%, rgba(226,114,91,0.07) 66%, transparent 71%), radial-gradient(ellipse at 50% 50%, transparent 60%, rgba(62,142,156,0.10) 74%, rgba(47,111,122,0.24) 97%);"></div>
+
+          <div style="position:relative; max-width:880px; margin:0 auto; padding:0 clamp(18px,4vw,40px);">
+            <div style="display:flex; align-items:center; gap:clamp(22px,4.5vw,38px); flex-wrap:wrap; margin:0 0 28px;">
+              <div style="flex:none; display:flex; flex-direction:column; align-items:center; gap:12px; margin:6px 26px 14px 4px;">
+                <div style="position:relative; width:136px; height:136px; filter:drop-shadow(0 16px 26px rgba(90,60,20,0.26));">
+                  <div style="position:absolute; inset:0; border-radius:50%; background:linear-gradient(145deg, #D4A24B, #B08432 55%, #C08F3C); box-shadow:inset 0 2px 5px rgba(255,255,255,0.55), inset 0 -3px 6px rgba(90,60,20,0.45);"></div>
+                  <div style="position:absolute; inset:7px; border-radius:50%; background:repeating-conic-gradient(rgba(74,50,20,0.5) 0 1.6deg, transparent 1.6deg 11.25deg);"></div>
+                  <div style="position:absolute; inset:14px; border-radius:50%; background:radial-gradient(circle at 36% 30%, rgba(255,255,255,0.9), rgba(216,236,228,0.72) 45%, rgba(139,188,178,0.62)); box-shadow:inset 0 0 0 2px rgba(122,88,46,0.35), inset 0 3px 9px rgba(255,255,255,0.75), inset 0 -4px 10px rgba(62,142,156,0.25);"></div>
+                  <div style="position:absolute; left:34px; top:32px; width:13px; height:42px; border-radius:999px; background:rgba(255,255,255,0.75); transform:rotate(26deg); filter:blur(0.5px);"></div>
+                  <div style="position:absolute; right:34px; top:30px; width:11px; height:11px; border-radius:50%; background:rgba(255,255,255,0.75); filter:blur(1px);"></div>
+                  <div style="position:absolute; right:-34px; bottom:-24px; width:82px; height:20px; border-radius:999px; background:linear-gradient(180deg,#9A6636,#7C4E26); transform:rotate(42deg); box-shadow:0 6px 14px rgba(90,60,20,0.3), inset 0 2px 3px rgba(255,255,255,0.3);"></div>
+                </div>
+                <div style="font-family:ui-monospace,Menlo,monospace; font-size:10px; font-weight:700; letter-spacing:0.18em; color:#8A6A33; border:1px solid rgba(138,106,51,0.45); border-radius:4px; padding:3px 9px; background:rgba(192,143,60,0.10);">OPTIQUE · ×10</div>
+              </div>
+              <div style="flex:1 1 300px; min-width:0;">
+                <div style="display:inline-flex; align-items:center; gap:8px; background:rgba(62,142,156,0.14); color:#2F6F7A; border-radius:999px; padding:6px 14px 6px 10px; font-weight:800; font-size:12px; letter-spacing:0.08em; text-transform:uppercase;">
+                  <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="5.5"></circle><line x1="14.8" y1="14.8" x2="20" y2="20"></line></svg>
+                  Sous la loupe
+                </div>
+                <h2 style="font-family:'Fredoka',sans-serif; font-weight:600; font-size:clamp(32px,4vw,44px); color:#3D4A3B; margin:12px 0 8px;">Le homelab</h2>
+                <p style="font-size:17px; line-height:1.65; color:#5C6B5E; max-width:560px; margin:0;">Un homelab, c'est un laboratoire personnel : un endroit où l'on monte, casse et remonte des systèmes informatiques pour apprendre en faisant.</p>
+              </div>
+            </div>
+
+            <div style="display:grid; gap:20px;">
+              <div style="position:relative; background:rgba(255,253,246,0.92); border:1.5px solid #C6D8CE; border-radius:14px 17px 15px 18px; padding:28px 26px 24px; transform:rotate(-0.5deg); box-shadow:0 10px 26px rgba(47,111,122,0.10);">
+                <span aria-hidden="true" style="position:absolute; top:-9px; left:50%; transform:translateX(-50%); width:17px; height:17px; border-radius:50%; background:radial-gradient(circle at 35% 30%, #E8836B, #B44A34); box-shadow:0 3px 5px rgba(90,60,20,0.35), inset 0 1px 2px rgba(255,255,255,0.5);"></span>
+                <span style="position:absolute; top:10px; right:14px; font-family:ui-monospace,Menlo,monospace; font-size:9.5px; font-weight:700; letter-spacing:0.16em; color:#7C9489;">SPÉCIMEN Nº 01</span>
+                <h3 style="font-family:'Fredoka',sans-serif; font-weight:500; font-size:20px; color:#2F6F7A; margin:0 0 10px;">L'idée</h3>
+                <p style="font-size:15.5px; line-height:1.7; color:#5D4633; margin:0;">Apprendre l'administration de serveurs uniquement dans les livres, c'est comme apprendre la mécanique sans voiture. Le homelab, c'est le garage : un endroit à soi où l'on démonte, où l'on se trompe, et où une erreur n'a de conséquence pour personne. On y installe les mêmes outils que ceux utilisés en entreprise, mais sur une machine dont on est seul responsable, du premier réglage jusqu'à la panne comprise et corrigée.</p>
+              </div>
+              <div style="position:relative; background:rgba(255,253,246,0.92); border:1.5px solid #C6D8CE; border-radius:17px 14px 18px 15px; padding:28px 26px 24px; transform:rotate(0.35deg); box-shadow:0 10px 26px rgba(47,111,122,0.10);">
+                <span aria-hidden="true" style="position:absolute; top:-9px; left:50%; transform:translateX(-50%); width:17px; height:17px; border-radius:50%; background:radial-gradient(circle at 35% 30%, #59A5B2, #2F6F7A); box-shadow:0 3px 5px rgba(90,60,20,0.35), inset 0 1px 2px rgba(255,255,255,0.5);"></span>
+                <span style="position:absolute; top:10px; right:14px; font-family:ui-monospace,Menlo,monospace; font-size:9.5px; font-weight:700; letter-spacing:0.16em; color:#7C9489;">SPÉCIMEN Nº 02</span>
+                <h3 style="font-family:'Fredoka',sans-serif; font-weight:500; font-size:20px; color:#2F6F7A; margin:0 0 10px;">La particularité de celui-ci</h3>
+                <p style="font-size:15.5px; line-height:1.7; color:#5D4633; margin:0 0 12px;">Ce homelab ne tourne pas dans une machine virtuelle isolée sur un ordinateur portable. C'est un vrai serveur loué (un VPS chez OVH), branché sur Internet avec une adresse publique. Concrètement : dès sa mise en ligne, il est scanné en continu par des robots qui cherchent des serveurs mal protégés. Les journaux de connexion en gardent la trace, heure par heure.</p>
+                <p style="font-size:15.5px; line-height:1.7; color:#5D4633; margin:0;">C'est un choix délibéré. Sécuriser une machine réellement exposée n'est pas le même exercice qu'en simulation : chaque protection mise en place ici répond à une menace observée dans les journaux, pas à un cas d'école.</p>
+              </div>
+              <div style="position:relative; background:rgba(255,253,246,0.92); border:1.5px solid #C6D8CE; border-radius:15px 18px 14px 17px; padding:28px 26px 24px; transform:rotate(-0.3deg); box-shadow:0 10px 26px rgba(47,111,122,0.10);">
+                <span aria-hidden="true" style="position:absolute; top:-9px; left:50%; transform:translateX(-50%); width:17px; height:17px; border-radius:50%; background:radial-gradient(circle at 35% 30%, #E5B65B, #B9852C); box-shadow:0 3px 5px rgba(90,60,20,0.35), inset 0 1px 2px rgba(255,255,255,0.5);"></span>
+                <span style="position:absolute; top:10px; right:14px; font-family:ui-monospace,Menlo,monospace; font-size:9.5px; font-weight:700; letter-spacing:0.16em; color:#7C9489;">SPÉCIMEN Nº 03</span>
+                <h3 style="font-family:'Fredoka',sans-serif; font-weight:500; font-size:20px; color:#2F6F7A; margin:0 0 10px;">Pour explorer</h3>
+                <p style="font-size:15.5px; line-height:1.7; color:#5D4633; margin:0;">L'histoire et la méthode du projet sont dans <a href="#projet" style="font-weight:700;">le carnet</a>, l'avancement au jour le jour dans <a href="#journal" style="font-weight:700;">le journal</a>, et tous les termes techniques sont expliqués simplement dans <a href="#glossaire" style="font-weight:700;">le glossaire</a>.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+      </sc-if>
+
+      <sc-if value="{{isProjet}}" hint-placeholder-val="{{false}}">
+        <section data-screen-label="Section — Le projet" style="position:relative; padding:clamp(22px,4vw,40px) 0 90px; background-image:repeating-linear-gradient(180deg, transparent 0 30px, rgba(62,142,156,0.16) 30px 31.5px);">
+          <div style="position:absolute; top:0; bottom:0; left:clamp(24px,6vw,74px); width:2px; background:rgba(226,114,91,0.45);"></div>
+          <div style="position:absolute; top:110px; bottom:110px; left:clamp(5px,1.5vw,20px); display:flex; flex-direction:column; justify-content:space-between;">
+            <span style="width:15px; height:15px; border-radius:50%; background:#EFDFBE; box-shadow:inset 0 1.5px 3px rgba(90,60,20,0.35);"></span>
+            <span style="width:15px; height:15px; border-radius:50%; background:#EFDFBE; box-shadow:inset 0 1.5px 3px rgba(90,60,20,0.35);"></span>
+            <span style="width:15px; height:15px; border-radius:50%; background:#EFDFBE; box-shadow:inset 0 1.5px 3px rgba(90,60,20,0.35);"></span>
+          </div>
+          <div style="position:relative; max-width:840px; margin:0 auto; padding:0 clamp(18px,4vw,40px) 0 clamp(48px,10vw,110px);">
+            <div style="display:inline-flex; align-items:center; gap:8px; background:rgba(226,114,91,0.14); color:#C2543E; border-radius:999px; padding:6px 14px 6px 10px; font-weight:800; font-size:12px; letter-spacing:0.08em; text-transform:uppercase;">
+              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="4.5" y="3.5" width="15" height="17" rx="2.5"></rect><line x1="15" y1="3.5" x2="15" y2="20.5"></line></svg>
+              Page du carnet
+            </div>
+            <h2 style="font-family:'Fredoka',sans-serif; font-weight:600; font-size:clamp(32px,4vw,44px); color:#4A3521; margin:14px 0 2px;">Le projet</h2>
+            <svg aria-hidden="true" width="190" height="10" viewBox="0 0 190 10" fill="none" style="display:block; margin:0 0 10px;"><path d="M3 6 Q15 1 27 6 T51 6 T75 6 T99 6 T123 6 T147 6 T171 6 T187 6" stroke="#C2543E" stroke-width="2.5" stroke-linecap="round" opacity="0.75"></path></svg>
+            <p style="font-size:17px; line-height:1.65; color:#6E5137; max-width:640px; margin:0 0 6px;">Un serveur, une feuille de route en neuf phases, et une règle : tout documenter, y compris les erreurs.</p>
+            <div style="font-family:'Caveat',cursive; font-weight:600; font-size:21px; color:#C2543E; transform:rotate(-1.5deg); margin:0 0 26px;">→ relire avant chaque nouvelle phase !</div>
+
+            <div style="display:grid; gap:22px;">
+              <div style="position:relative; background:#FFFDF6; border:1.5px solid #EADFC0; border-radius:5px 5px 14px 14px; box-shadow:0 10px 24px rgba(90,60,20,0.10); padding:26px 26px 24px; transform:rotate(-0.4deg);">
+                <div style="position:absolute; top:-11px; left:50%; transform:translateX(-50%) rotate(-3deg); width:96px; height:22px; background:rgba(214,183,133,0.55); box-shadow:0 1px 3px rgba(90,60,20,0.15);"></div>
+                <h3 style="font-family:'Fredoka',sans-serif; font-weight:500; font-size:20px; color:#C2543E; margin:0 0 10px;">Pourquoi ce projet</h3>
+                <p style="font-size:15.5px; line-height:1.7; color:#5D4633; margin:0;">Ce homelab accompagne mon cursus à l'école 42, où l'administration système et la cybersécurité sont abordées en environnement contrôlé — sur machine virtuelle, comme dans le projet Born2beRoot. Ici, les mêmes principes sont appliqués sur un serveur réel et exposé, où une erreur de configuration a de vraies conséquences. L'objectif : monter en compétences sur l'infrastructure, la sécurité et les pratiques DevOps, en conditions réelles.</p>
+              </div>
+              <div style="position:relative; background:#FFFDF6; border:1.5px solid #EADFC0; border-radius:5px 5px 14px 14px; box-shadow:0 10px 24px rgba(90,60,20,0.10); padding:26px 26px 24px; transform:rotate(0.3deg);">
+                <div style="position:absolute; top:-11px; left:50%; transform:translateX(-50%) rotate(2.5deg); width:96px; height:22px; background:rgba(214,183,133,0.55); box-shadow:0 1px 3px rgba(90,60,20,0.15);"></div>
+                <h3 style="font-family:'Fredoka',sans-serif; font-weight:500; font-size:20px; color:#C2543E; margin:0 0 10px;">La méthode</h3>
+                <p style="font-size:15.5px; line-height:1.7; color:#5D4633; margin:0;">Le projet avance phase par phase, dans un ordre volontairement classique : sécuriser la base avant d'empiler quoi que ce soit dessus. Chaque décision technique est expliquée et documentée. Les erreurs rencontrées ne sont pas effacées : elles sont gardées et analysées, parce qu'un problème compris en dit plus long qu'une installation qui se passe bien. C'est un projet vivant, encore en cours — ce site est sa documentation, il évolue avec lui.</p>
+              </div>
+              <div style="position:relative; background:#FFFDF6; border:1.5px solid #EADFC0; border-radius:5px 5px 14px 14px; box-shadow:0 10px 24px rgba(90,60,20,0.10); padding:26px 26px 24px; transform:rotate(-0.25deg);">
+                <div style="position:absolute; top:-11px; left:50%; transform:translateX(-50%) rotate(-2deg); width:96px; height:22px; background:rgba(214,183,133,0.55); box-shadow:0 1px 3px rgba(90,60,20,0.15);"></div>
+                <span aria-hidden="true" style="position:absolute; top:20px; right:30px; width:72px; height:64px; border:11px solid rgba(151,95,50,0.10); border-radius:50%; transform:rotate(-8deg); z-index:-1;"></span>
+                <div style="display:flex; align-items:baseline; justify-content:space-between; gap:12px; flex-wrap:wrap; margin:0 0 16px;">
+                  <h3 style="font-family:'Fredoka',sans-serif; font-weight:500; font-size:20px; color:#C2543E; margin:0;">Feuille de route</h3>
+                  <span style="font-size:12.5px; font-weight:700; color:#A9885C;">état : juillet 2026</span>
+                </div>
+                <div style="display:grid; gap:8px;">
+                  <div style="display:flex; align-items:center; gap:14px; background:rgba(217,164,65,0.12); border:1.5px solid rgba(217,164,65,0.5); border-radius:12px; padding:12px 16px;">
+                    <span style="font-family:'Fredoka',sans-serif; font-weight:600; font-size:14px; color:#A87A22; flex:none; width:22px; text-align:center;">1</span>
+                    <div style="flex:1; min-width:0;">
+                      <div style="font-weight:800; font-size:14.5px; color:#4A3521;">Durcissement Linux</div>
+                      <div style="font-size:13px; color:#8C6A4F;">SSH par clé, pare-feu et fail2ban en place — hygiène système à venir</div>
+                    </div>
+                    <span style="flex:none; background:#D9A441; color:#4A3521; font-weight:800; font-size:11px; letter-spacing:0.06em; border-radius:999px; padding:4px 10px;">EN COURS</span>
+                  </div>
+                  <div style="display:flex; align-items:center; gap:14px; background:rgba(255,252,244,0.7); border:1.5px solid #E6D6B6; border-radius:12px; padding:12px 16px;">
+                    <span style="font-family:'Fredoka',sans-serif; font-weight:600; font-size:14px; color:#A9885C; flex:none; width:22px; text-align:center;">2</span>
+                    <div style="flex:1; min-width:0;"><div style="font-weight:800; font-size:14.5px; color:#4A3521;">Conteneurisation</div><div style="font-size:13px; color:#8C6A4F;">Docker, Docker Compose</div></div>
+                    <span style="flex:none; border:1.5px solid #C9B48C; color:#8C6A4F; font-weight:800; font-size:11px; letter-spacing:0.06em; border-radius:999px; padding:4px 10px;">PLANIFIÉ</span>
+                  </div>
+                  <div style="display:flex; align-items:center; gap:14px; background:rgba(255,252,244,0.7); border:1.5px solid #E6D6B6; border-radius:12px; padding:12px 16px;">
+                    <span style="font-family:'Fredoka',sans-serif; font-weight:600; font-size:14px; color:#A9885C; flex:none; width:22px; text-align:center;">3</span>
+                    <div style="flex:1; min-width:0;"><div style="font-weight:800; font-size:14.5px; color:#4A3521;">Exposition web sécurisée</div><div style="font-size:13px; color:#8C6A4F;">Nom de domaine, Caddy, HTTPS</div></div>
+                    <span style="flex:none; border:1.5px solid #C9B48C; color:#8C6A4F; font-weight:800; font-size:11px; letter-spacing:0.06em; border-radius:999px; padding:4px 10px;">PLANIFIÉ</span>
+                  </div>
+                  <div style="display:flex; align-items:center; gap:14px; background:rgba(255,252,244,0.7); border:1.5px solid #E6D6B6; border-radius:12px; padding:12px 16px;">
+                    <span style="font-family:'Fredoka',sans-serif; font-weight:600; font-size:14px; color:#A9885C; flex:none; width:22px; text-align:center;">4</span>
+                    <div style="flex:1; min-width:0;"><div style="font-weight:800; font-size:14.5px; color:#4A3521;">CI/CD</div><div style="font-size:13px; color:#8C6A4F;">GitHub Actions</div></div>
+                    <span style="flex:none; border:1.5px solid #C9B48C; color:#8C6A4F; font-weight:800; font-size:11px; letter-spacing:0.06em; border-radius:999px; padding:4px 10px;">PLANIFIÉ</span>
+                  </div>
+                  <div style="display:flex; align-items:center; gap:14px; background:rgba(255,252,244,0.7); border:1.5px solid #E6D6B6; border-radius:12px; padding:12px 16px;">
+                    <span style="font-family:'Fredoka',sans-serif; font-weight:600; font-size:14px; color:#A9885C; flex:none; width:22px; text-align:center;">5</span>
+                    <div style="flex:1; min-width:0;"><div style="font-weight:800; font-size:14.5px; color:#4A3521;">Observabilité</div><div style="font-size:13px; color:#8C6A4F;">Prometheus, Grafana</div></div>
+                    <span style="flex:none; border:1.5px solid #C9B48C; color:#8C6A4F; font-weight:800; font-size:11px; letter-spacing:0.06em; border-radius:999px; padding:4px 10px;">PLANIFIÉ</span>
+                  </div>
+                  <div style="display:flex; align-items:center; gap:14px; background:rgba(255,252,244,0.7); border:1.5px solid #E6D6B6; border-radius:12px; padding:12px 16px;">
+                    <span style="font-family:'Fredoka',sans-serif; font-weight:600; font-size:14px; color:#A9885C; flex:none; width:22px; text-align:center;">6</span>
+                    <div style="flex:1; min-width:0;"><div style="font-weight:800; font-size:14.5px; color:#4A3521;">Ansible</div><div style="font-size:13px; color:#8C6A4F;">Configuration rejouable</div></div>
+                    <span style="flex:none; border:1.5px solid #C9B48C; color:#8C6A4F; font-weight:800; font-size:11px; letter-spacing:0.06em; border-radius:999px; padding:4px 10px;">PLANIFIÉ</span>
+                  </div>
+                  <div style="display:flex; align-items:center; gap:14px; background:rgba(255,252,244,0.7); border:1.5px solid #E6D6B6; border-radius:12px; padding:12px 16px;">
+                    <span style="font-family:'Fredoka',sans-serif; font-weight:600; font-size:14px; color:#A9885C; flex:none; width:22px; text-align:center;">7</span>
+                    <div style="flex:1; min-width:0;"><div style="font-weight:800; font-size:14.5px; color:#4A3521;">Terraform</div><div style="font-size:13px; color:#8C6A4F;">Provisionnement</div></div>
+                    <span style="flex:none; border:1.5px solid #C9B48C; color:#8C6A4F; font-weight:800; font-size:11px; letter-spacing:0.06em; border-radius:999px; padding:4px 10px;">PLANIFIÉ</span>
+                  </div>
+                  <div style="display:flex; align-items:center; gap:14px; background:rgba(255,252,244,0.4); border:1.5px dashed #D5C6A4; border-radius:12px; padding:12px 16px;">
+                    <span style="font-family:'Fredoka',sans-serif; font-weight:600; font-size:14px; color:#B7A481; flex:none; width:22px; text-align:center;">8</span>
+                    <div style="flex:1; min-width:0;"><div style="font-weight:800; font-size:14.5px; color:#6E5137;">AWS free tier</div><div style="font-size:13px; color:#A08D6E;">Extension cloud</div></div>
+                    <span style="flex:none; border:1.5px dashed #C3B394; color:#97876F; font-weight:800; font-size:11px; letter-spacing:0.06em; border-radius:999px; padding:4px 10px;">OPTIONNEL</span>
+                  </div>
+                  <div style="display:flex; align-items:center; gap:14px; background:rgba(255,252,244,0.4); border:1.5px dashed #D5C6A4; border-radius:12px; padding:12px 16px;">
+                    <span style="font-family:'Fredoka',sans-serif; font-weight:600; font-size:14px; color:#B7A481; flex:none; width:22px; text-align:center;">9</span>
+                    <div style="flex:1; min-width:0;"><div style="font-weight:800; font-size:14.5px; color:#6E5137;">k3s / Kubernetes léger</div><div style="font-size:13px; color:#A08D6E;">Orchestration</div></div>
+                    <span style="flex:none; border:1.5px dashed #C3B394; color:#97876F; font-weight:800; font-size:11px; letter-spacing:0.06em; border-radius:999px; padding:4px 10px;">OPTIONNEL</span>
+                  </div>
+                </div>
+                <div style="font-family:'Caveat',cursive; font-weight:600; font-size:20px; color:#A87A22; text-align:right; transform:rotate(-1deg); margin:14px 4px 0 0;">une brique à la fois…</div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </sc-if>
+
+      <sc-if value="{{isArchitecture}}" hint-placeholder-val="{{false}}">
+        <section data-screen-label="Section — Architecture" style="position:relative; padding:clamp(18px,3vw,36px) clamp(12px,3vw,34px) 90px;">
+          <div style="position:absolute; inset:0; pointer-events:none; background-image:repeating-linear-gradient(90deg, rgba(122,88,46,0.06) 0 1px, transparent 1px 36px), repeating-linear-gradient(0deg, rgba(122,88,46,0.06) 0 1px, transparent 1px 36px);"></div>
+          <div style="position:absolute; top:0; bottom:0; left:33.3%; width:6px; pointer-events:none; background:linear-gradient(90deg, transparent, rgba(90,60,20,0.13), transparent);"></div>
+          <div style="position:absolute; top:0; bottom:0; left:66.6%; width:6px; pointer-events:none; background:linear-gradient(90deg, transparent, rgba(90,60,20,0.13), transparent);"></div>
+
+          <div style="position:relative; max-width:940px; margin:0 auto;">
+            <div style="border:2.5px solid #B8945C; border-radius:6px; padding:7px; background:rgba(251,244,227,0.35);">
+              <div style="position:relative; border:1.5px solid #B8945C; border-radius:3px; padding:clamp(18px,4vw,38px); overflow:hidden;">
+
+                <svg aria-hidden="true" width="250" height="210" viewBox="0 0 220 180" fill="none" style="position:absolute; top:140px; left:-30px; pointer-events:none;">
+                  <path d="M96,14 C138,6 178,26 190,64 C202,102 184,146 144,162 C104,178 56,168 34,132 C12,96 24,48 60,26 C71,19 84,16 96,14 Z" stroke="#7F9C6B" stroke-width="2.5" opacity="0.30"></path>
+                  <g transform="translate(110,90) scale(0.68) translate(-110,-90)"><path d="M96,14 C138,6 178,26 190,64 C202,102 184,146 144,162 C104,178 56,168 34,132 C12,96 24,48 60,26 C71,19 84,16 96,14 Z" stroke="#8CA36F" stroke-width="3" stroke-dasharray="10 7" opacity="0.30"></path></g>
+                  <g transform="translate(110,90) scale(0.4) translate(-110,-90)"><path d="M96,14 C138,6 178,26 190,64 C202,102 184,146 144,162 C104,178 56,168 34,132 C12,96 24,48 60,26 C71,19 84,16 96,14 Z" stroke="#7F9C6B" stroke-width="4" opacity="0.32"></path></g>
+                </svg>
+                <svg aria-hidden="true" width="220" height="185" viewBox="0 0 220 180" fill="none" style="position:absolute; top:54%; right:-26px; pointer-events:none; transform:rotate(24deg);">
+                  <path d="M96,14 C138,6 178,26 190,64 C202,102 184,146 144,162 C104,178 56,168 34,132 C12,96 24,48 60,26 C71,19 84,16 96,14 Z" stroke="#7F9C6B" stroke-width="2.5" opacity="0.28"></path>
+                  <g transform="translate(110,90) scale(0.64) translate(-110,-90)"><path d="M96,14 C138,6 178,26 190,64 C202,102 184,146 144,162 C104,178 56,168 34,132 C12,96 24,48 60,26 C71,19 84,16 96,14 Z" stroke="#8CA36F" stroke-width="3" stroke-dasharray="10 7" opacity="0.28"></path></g>
+                </svg>
+                <svg aria-hidden="true" width="150" height="54" viewBox="0 0 150 54" fill="none" style="position:absolute; top:118px; right:7%; pointer-events:none;">
+                  <path d="M6 48 L34 12 L62 48 M50 48 L80 8 L110 48 M96 48 L120 20 L144 48" stroke="#71583B" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round" opacity="0.32"></path>
+                </svg>
+                <svg aria-hidden="true" width="150" height="52" viewBox="0 0 150 52" fill="none" style="position:absolute; bottom:23%; left:3%; pointer-events:none;">
+                  <path d="M10 12 q12 -7 24 0 t24 0 t24 0 t24 0" stroke="#5F969B" stroke-width="3" stroke-linecap="round" fill="none" opacity="0.4"></path>
+                  <path d="M22 28 q12 -7 24 0 t24 0 t24 0" stroke="#5F969B" stroke-width="3" stroke-linecap="round" fill="none" opacity="0.4"></path>
+                  <path d="M34 44 q12 -7 24 0 t24 0" stroke="#5F969B" stroke-width="3" stroke-linecap="round" fill="none" opacity="0.4"></path>
+                </svg>
+
+                <div style="position:relative;">
+                  <div style="position:absolute; top:-4px; right:-6px; display:flex; flex-direction:column; align-items:center;">
+                    <svg width="62" height="62" viewBox="0 0 64 64" fill="none">
+                      <circle cx="32" cy="32" r="27" stroke="#B8945C" stroke-width="2.5" fill="rgba(241,228,190,0.85)"></circle>
+                      <circle cx="32" cy="32" r="19.5" stroke="#B8945C" stroke-width="1.2" stroke-dasharray="2.5 4"></circle>
+                      <line x1="32" y1="5" x2="32" y2="12" stroke="#B8945C" stroke-width="2"></line>
+                      <line x1="32" y1="52" x2="32" y2="59" stroke="#B8945C" stroke-width="2"></line>
+                      <line x1="5" y1="32" x2="12" y2="32" stroke="#B8945C" stroke-width="2"></line>
+                      <line x1="52" y1="32" x2="59" y2="32" stroke="#B8945C" stroke-width="2"></line>
+                      <polygon points="32,15 36.5,32 27.5,32" fill="#C14F35"></polygon>
+                      <polygon points="32,49 36.5,32 27.5,32" fill="#71583B"></polygon>
+                      <circle cx="32" cy="32" r="3" fill="#F1E4BE" stroke="#71583B" stroke-width="1.5"></circle>
+                    </svg>
+                    <span style="font-family:'Fredoka',sans-serif; font-weight:600; font-size:12px; color:#71583B; margin-top:2px;">N</span>
+                  </div>
+
+                  <div style="display:inline-flex; align-items:center; gap:8px; background:rgba(127,156,107,0.16); color:#5E7C45; border-radius:999px; padding:6px 14px 6px 10px; font-weight:800; font-size:12px; letter-spacing:0.08em; text-transform:uppercase;">
+                    <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="3.5" y="5" width="17" height="14" rx="2"></rect><line x1="9.2" y1="5" x2="9.2" y2="19"></line><line x1="14.8" y1="5" x2="14.8" y2="19"></line></svg>
+                    Le plan déplié
+                  </div>
+                  <h2 style="font-family:'Fredoka',sans-serif; font-weight:600; font-size:clamp(32px,4vw,44px); color:#4A3521; margin:14px 0 10px;">Architecture</h2>
+                  <p style="font-size:17px; line-height:1.65; color:#6E5137; max-width:600px; margin:0 0 16px;">La topologie cible du lab — et, honnêtement, ce qui existe déjà par rapport à ce qui reste à construire.</p>
+
+                  <div style="display:flex; gap:18px; flex-wrap:wrap; align-items:center; font-size:13px; font-weight:700; color:#6E5137; margin:0 0 6px;">
+                    <span style="display:inline-flex; align-items:center; gap:7px;"><span style="width:26px; height:14px; border-radius:5px; background:rgba(127,156,107,0.25); border:2px solid #7F9C6B;"></span> En place</span>
+                    <span style="display:inline-flex; align-items:center; gap:7px;"><span style="width:26px; height:14px; border-radius:5px; border:2px dashed #A9885C;"></span> Prévu</span>
+                    <span style="display:inline-flex; align-items:center; gap:7px;"><svg width="28" height="8" viewBox="0 0 28 8" fill="none"><path d="M2 4 Q8 0 14 4 T26 4" stroke="#C14F35" stroke-width="2.5" stroke-dasharray="4 3" stroke-linecap="round" opacity="0.8"></path></svg> Itinéraire du trafic</span>
+                  </div>
+                  <div style="font-family:'Caveat',cursive; font-weight:600; font-size:20px; color:#A05540; transform:rotate(-1.5deg); text-align:right; margin:0 4px 14px 0;">relevé sur le terrain — juil. 2026</div>
+
+                  <div style="max-width:560px; margin:0 auto; display:flex; flex-direction:column; align-items:stretch;">
+                    <div style="border:2px solid #C9B48C; border-radius:14px; padding:13px 18px; text-align:center; background:rgba(255,252,244,0.6);">
+                      <div style="font-weight:800; font-size:15px; color:#4A3521;">Internet</div>
+                      <div style="font-size:12.5px; color:#8C6A4F;">visiteurs légitimes… et robots de scan</div>
+                    </div>
+                    <div style="display:flex; flex-direction:column; align-items:center; padding:2px 0;">
+                      <span style="width:9px; height:9px; border-radius:50%; background:#C14F35; margin-bottom:1px;"></span>
+                      <svg width="12" height="18" viewBox="0 0 12 18" fill="none" aria-hidden="true"><path d="M6 0 Q10 4.5 6 9 Q2 13.5 6 18" stroke="#C14F35" stroke-width="2.5" stroke-dasharray="5 4" stroke-linecap="round" opacity="0.8"></path></svg>
+                      <div style="font-size:12px; font-weight:700; color:#8C6A4F; padding:2px 0;">HTTPS · port 443</div>
+                      <svg width="12" height="18" viewBox="0 0 12 18" fill="none" aria-hidden="true"><path d="M6 0 Q10 4.5 6 9 Q2 13.5 6 18" stroke="#C14F35" stroke-width="2.5" stroke-dasharray="5 4" stroke-linecap="round" opacity="0.8"></path></svg>
+                      <div style="width:9px; height:9px; border-right:2.5px solid #C14F35; border-bottom:2.5px solid #C14F35; transform:rotate(45deg); margin-top:-6px;"></div>
+                    </div>
+                    <div style="border:2px dashed #9DB584; border-radius:14px; padding:13px 18px; text-align:center; background:rgba(127,156,107,0.07);">
+                      <div style="display:flex; align-items:center; justify-content:center; gap:10px; flex-wrap:wrap;">
+                        <span style="font-weight:800; font-size:15px; color:#5E7C45;">Caddy — reverse proxy</span>
+                        <span style="border:1.5px solid #C9B48C; color:#8C6A4F; font-weight:800; font-size:10.5px; letter-spacing:0.05em; border-radius:999px; padding:3px 9px;">PHASE 3</span>
+                      </div>
+                      <div style="font-size:12.5px; color:#7A8A63;">point d'entrée unique, certificats HTTPS automatiques</div>
+                    </div>
+                    <div style="display:flex; flex-direction:column; align-items:center; padding:2px 0;">
+                      <svg width="12" height="26" viewBox="0 0 12 26" fill="none" aria-hidden="true"><path d="M6 0 Q10 6.5 6 13 Q2 19.5 6 26" stroke="#C14F35" stroke-width="2.5" stroke-dasharray="5 4" stroke-linecap="round" opacity="0.8"></path></svg>
+                      <div style="width:9px; height:9px; border-right:2.5px solid #C14F35; border-bottom:2.5px solid #C14F35; transform:rotate(45deg); margin-top:-6px;"></div>
+                    </div>
+                    <div style="border:2px dashed #9DB584; border-radius:14px; padding:13px 18px; background:rgba(127,156,107,0.07);">
+                      <div style="display:flex; align-items:center; justify-content:center; gap:10px; flex-wrap:wrap;">
+                        <span style="font-weight:800; font-size:15px; color:#5E7C45;">Services conteneurisés — Docker Compose</span>
+                        <span style="border:1.5px solid #C9B48C; color:#8C6A4F; font-weight:800; font-size:10.5px; letter-spacing:0.05em; border-radius:999px; padding:3px 9px;">PHASE 2</span>
+                      </div>
+                      <div style="display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-top:10px;">
+                        <span style="border:1.5px dashed #B4A582; border-radius:8px; padding:5px 11px; font-size:12.5px; font-weight:700; color:#8C6A4F;">site du lab</span>
+                        <span style="border:1.5px dashed #B4A582; border-radius:8px; padding:5px 11px; font-size:12.5px; font-weight:700; color:#8C6A4F;">services auto-hébergés</span>
+                        <span style="border:1.5px dashed #B4A582; border-radius:8px; padding:5px 11px; font-size:12.5px; font-weight:700; color:#8C6A4F;">exporters de métriques</span>
+                      </div>
+                    </div>
+                    <div style="display:flex; flex-direction:column; align-items:center; padding:2px 0;">
+                      <svg width="12" height="16" viewBox="0 0 12 16" fill="none" aria-hidden="true"><path d="M6 0 Q10 4 6 8 Q2 12 6 16" stroke="#C14F35" stroke-width="2.5" stroke-dasharray="5 4" stroke-linecap="round" opacity="0.8"></path></svg>
+                      <div style="font-size:12px; font-weight:700; color:#8C6A4F; padding:2px 0;">métriques</div>
+                      <svg width="12" height="16" viewBox="0 0 12 16" fill="none" aria-hidden="true"><path d="M6 0 Q10 4 6 8 Q2 12 6 16" stroke="#C14F35" stroke-width="2.5" stroke-dasharray="5 4" stroke-linecap="round" opacity="0.8"></path></svg>
+                      <div style="width:9px; height:9px; border-right:2.5px solid #C14F35; border-bottom:2.5px solid #C14F35; transform:rotate(45deg); margin-top:-6px;"></div>
+                    </div>
+                    <div style="border:2px dashed #9DB584; border-radius:14px; padding:13px 18px; text-align:center; background:rgba(127,156,107,0.07);">
+                      <div style="display:flex; align-items:center; justify-content:center; gap:10px; flex-wrap:wrap;">
+                        <span style="font-weight:800; font-size:15px; color:#5E7C45;">Prometheus → Grafana</span>
+                        <span style="border:1.5px solid #C9B48C; color:#8C6A4F; font-weight:800; font-size:10.5px; letter-spacing:0.05em; border-radius:999px; padding:3px 9px;">PHASE 5</span>
+                      </div>
+                      <div style="font-size:12.5px; color:#7A8A63;">collecte des métriques, tableaux de bord</div>
+                    </div>
+
+                    <div style="margin-top:22px; border-top:1.5px dashed #D5C6A4; padding-top:18px;">
+                      <div style="font-size:12px; font-weight:800; letter-spacing:0.08em; text-transform:uppercase; color:#A9885C; text-align:center; margin-bottom:10px;">Pilotage &amp; automatisation — prévu</div>
+                      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:8px;">
+                        <div style="border:1.5px dashed #B4A582; border-radius:10px; padding:10px 12px; text-align:center;">
+                          <div style="font-weight:800; font-size:13.5px; color:#5D4633;">GitHub Actions</div>
+                          <div style="font-size:12px; color:#8C6A4F;">déploiement via SSH · phase 4</div>
+                        </div>
+                        <div style="border:1.5px dashed #B4A582; border-radius:10px; padding:10px 12px; text-align:center;">
+                          <div style="font-weight:800; font-size:13.5px; color:#5D4633;">Ansible</div>
+                          <div style="font-size:12px; color:#8C6A4F;">configuration · phase 6</div>
+                        </div>
+                        <div style="border:1.5px dashed #B4A582; border-radius:10px; padding:10px 12px; text-align:center;">
+                          <div style="font-weight:800; font-size:13.5px; color:#5D4633;">Terraform</div>
+                          <div style="font-size:12px; color:#8C6A4F;">provisionnement · phase 7</div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div style="margin-top:18px; border:2px solid #7F9C6B; border-radius:14px; padding:15px 18px; background:rgba(127,156,107,0.16);">
+                      <div style="display:flex; align-items:center; justify-content:center; gap:10px; flex-wrap:wrap;">
+                        <svg width="15" height="15" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M2 2 L12 12 M12 2 L2 12" stroke="#B04430" stroke-width="3.2" stroke-linecap="round"></path></svg>
+                        <span style="font-weight:800; font-size:15px; color:#42592F;">Socle système — Debian 13</span>
+                        <span style="background:#7F9C6B; color:#F7F2E2; font-weight:800; font-size:10.5px; letter-spacing:0.05em; border-radius:999px; padding:3px 9px;">EN PLACE</span>
+                      </div>
+                      <div style="display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-top:10px;">
+                        <span style="background:rgba(255,252,244,0.75); border:1.5px solid #9DB584; border-radius:8px; padding:5px 11px; font-size:12.5px; font-weight:700; color:#42592F;">SSH — clés Ed25519 uniquement</span>
+                        <span style="background:rgba(255,252,244,0.75); border:1.5px solid #9DB584; border-radius:8px; padding:5px 11px; font-size:12.5px; font-weight:700; color:#42592F;">ufw — deny by default</span>
+                        <span style="background:rgba(255,252,244,0.75); border:1.5px solid #9DB584; border-radius:8px; padding:5px 11px; font-size:12.5px; font-weight:700; color:#42592F;">fail2ban + nftables</span>
+                      </div>
+                    </div>
+                    <div style="font-family:'Caveat',cursive; font-weight:600; font-size:20px; color:#5E7C45; text-align:center; transform:rotate(-1deg); margin:8px 0 0;">seule zone déjà conquise !</div>
+
+                    <div style="display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-top:16px;">
+                      <span style="border:1.5px dashed #C3B394; border-radius:8px; padding:5px 11px; font-size:12px; font-weight:700; color:#97876F;">extension possible : AWS free tier</span>
+                      <span style="border:1.5px dashed #C3B394; border-radius:8px; padding:5px 11px; font-size:12px; font-weight:700; color:#97876F;">extension possible : k3s</span>
+                    </div>
+                  </div>
+
+                  <div style="display:flex; justify-content:space-between; align-items:flex-end; gap:16px; flex-wrap:wrap; margin-top:28px;">
+                    <div aria-hidden="true" style="border:2px solid #B8945C; outline:2px dashed rgba(184,148,92,0.55); outline-offset:3px; background:rgba(241,228,190,0.75); padding:10px 12px 8px; transform:rotate(-5deg); display:flex; flex-direction:column; align-items:center; gap:3px; margin:0 0 4px 6px;">
+                      <svg width="40" height="26" viewBox="0 0 40 26" fill="none"><path d="M2 24 L14 6 L22 18 L28 9 L38 24 Z" stroke="#71583B" stroke-width="2.5" stroke-linejoin="round"></path></svg>
+                      <span style="font-family:ui-monospace,Menlo,monospace; font-size:9.5px; letter-spacing:0.14em; color:#71583B; font-weight:700;">LAB · POSTE · 2026</span>
+                    </div>
+                    <div style="display:grid; grid-template-columns:auto auto; border:1.5px solid #B8945C; background:rgba(251,244,227,0.75); font-family:ui-monospace,Menlo,monospace; font-size:11px; color:#71583B;">
+                      <span style="padding:5px 12px; border-right:1.5px solid #B8945C; border-bottom:1.5px solid #B8945C; font-weight:700;">PLAN Nº 03</span>
+                      <span style="padding:5px 12px; border-bottom:1.5px solid #B8945C;">TOPOLOGIE DU LAB</span>
+                      <span style="padding:5px 12px; border-right:1.5px solid #B8945C;">ÉCH. 1:1</span>
+                      <span style="padding:5px 12px;">RÉVISION — JUILLET 2026</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div style="background:rgba(251,244,227,0.85); border:1.5px solid #D8C69D; border-radius:16px; padding:24px 26px; margin-top:18px;">
+              <h3 style="font-family:'Fredoka',sans-serif; font-weight:500; font-size:20px; color:#5E7C45; margin:0 0 10px;">Où en est-on</h3>
+              <p style="font-size:15.5px; line-height:1.7; color:#5D4633; margin:0;">Seul le socle système est en service aujourd'hui : accès SSH par clé uniquement, connexion root désactivée, pare-feu en liste blanche et bannissement automatique des adresses insistantes. Le déploiement se fait encore manuellement en SSH. Tout le reste de la topologie — reverse proxy, conteneurs, monitoring, automatisation — est planifié mais pas encore construit. Ce schéma sera mis à jour à chaque phase livrée.</p>
+            </div>
+          </div>
+        </section>
+      </sc-if>
+
+      <sc-if value="{{isStack}}" hint-placeholder-val="{{false}}">
+        <section data-screen-label="Section — La stack" style="position:relative; padding:clamp(84px,10vw,108px) 0 120px;">
+          <div aria-hidden="true" style="position:fixed; inset:0; pointer-events:none; background:repeating-linear-gradient(90deg, rgba(58,28,11,0.10) 0 5px, transparent 5px 120px), linear-gradient(180deg, rgba(40,16,5,0.5), rgba(40,16,5,0) 160px), linear-gradient(0deg, rgba(40,16,5,0.45), rgba(40,16,5,0) 120px), linear-gradient(90deg, rgba(40,16,5,0.4), rgba(40,16,5,0) 80px), linear-gradient(270deg, rgba(40,16,5,0.4), rgba(40,16,5,0) 80px);"></div>
+          <div aria-hidden="true" style="position:fixed; top:0; bottom:0; left:0; width:clamp(16px,2.6vw,30px); pointer-events:none; background:linear-gradient(90deg, #B14C16, #8F3E13 55%, rgba(143,62,19,0)); box-shadow:inset 3px 0 5px rgba(255,180,120,0.18);"></div>
+          <div aria-hidden="true" style="position:fixed; top:0; bottom:0; right:0; width:clamp(16px,2.6vw,30px); pointer-events:none; background:linear-gradient(270deg, #B14C16, #8F3E13 55%, rgba(143,62,19,0)); box-shadow:inset -3px 0 5px rgba(255,180,120,0.18);"></div>
+          <div aria-hidden="true" style="position:fixed; top:0; left:0; right:0; pointer-events:none;">
+            <div style="position:relative; height:46px; background:linear-gradient(180deg, #F49B63, #E8703A 55%, #C4581F); border-bottom:4px solid #6B3316; box-shadow:0 12px 26px rgba(20,8,2,0.5);">
+              <div style="position:absolute; inset:0; background:repeating-linear-gradient(90deg, rgba(107,51,22,0.16) 0 4px, transparent 4px 90px);"></div>
+              <div style="position:absolute; bottom:7px; left:26px; right:26px; height:8px; background:radial-gradient(circle 2.6px at 5px 4px, rgba(255,225,195,0.6) 0 2.2px, transparent 2.8px); background-size:72px 8px; background-repeat:repeat-x;"></div>
+            </div>
+            <div style="position:absolute; top:50px; left:15%; width:52px; height:22px; background:linear-gradient(180deg,#D9A441,#B9852C); border-radius:0 0 8px 8px; box-shadow:0 3px 7px rgba(40,18,6,0.45), inset 0 -2px 3px rgba(90,50,10,0.45);"></div>
+            <div style="position:absolute; top:50px; right:15%; width:52px; height:22px; background:linear-gradient(180deg,#D9A441,#B9852C); border-radius:0 0 8px 8px; box-shadow:0 3px 7px rgba(40,18,6,0.45), inset 0 -2px 3px rgba(90,50,10,0.45);"></div>
+            <div style="position:absolute; top:44px; left:clamp(30px,5vw,60px);">
+              <span style="position:absolute; left:30px; top:0; width:1.5px; height:30px; background:rgba(255,225,195,0.55); transform:rotate(16deg);"></span>
+              <div style="position:relative; margin-top:26px; background:#EBD3A7; border:1.5px solid rgba(122,88,46,0.42); border-radius:8px; padding:5px 13px 6px 25px; font-family:'Caveat',cursive; font-weight:600; font-size:17px; color:#53381F; transform:rotate(-3.5deg); box-shadow:0 5px 12px rgba(40,18,6,0.4); white-space:nowrap;">
+                <span style="position:absolute; left:8px; top:50%; transform:translateY(-50%); width:7px; height:7px; border-radius:50%; background:#7A3A18; box-shadow:inset 0 0 0 1.5px #A8834F;"></span>
+                couvercle ouvert !
+              </div>
+            </div>
+          </div>
+          <div aria-hidden="true" style="position:fixed; left:0; right:0; bottom:0; pointer-events:none;">
+            <div style="position:absolute; bottom:8px; left:21%; width:36px; height:30px; background:linear-gradient(180deg,#D9A441,#B9852C); border-radius:6px 6px 3px 3px; box-shadow:inset 0 2px 3px rgba(255,235,200,0.5), 0 2px 5px rgba(40,18,6,0.4);"></div>
+            <div style="position:absolute; bottom:8px; right:21%; width:36px; height:30px; background:linear-gradient(180deg,#D9A441,#B9852C); border-radius:6px 6px 3px 3px; box-shadow:inset 0 2px 3px rgba(255,235,200,0.5), 0 2px 5px rgba(40,18,6,0.4);"></div>
+            <div style="position:relative; height:30px; background:linear-gradient(0deg, #C4581F, #E8703A 60%, #F49B63); border-top:4px solid #6B3316; box-shadow:0 -8px 20px rgba(20,8,2,0.45);">
+              <div style="position:absolute; inset:0; background:repeating-linear-gradient(90deg, rgba(107,51,22,0.16) 0 4px, transparent 4px 90px);"></div>
+            </div>
+          </div>
+
+          <div style="position:relative; max-width:940px; margin:0 auto; padding:0 clamp(18px,4vw,40px);">
+            <div style="display:inline-flex; align-items:center; gap:8px; background:rgba(255,225,196,0.14); color:#FFD9B4; border:1.5px solid rgba(255,214,178,0.3); border-radius:999px; padding:6px 14px 6px 10px; font-weight:800; font-size:12px; letter-spacing:0.08em; text-transform:uppercase;">
+              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="3.5" y="8.5" width="17" height="11" rx="2"></rect><path d="M9 8.5 V7 a3 3 0 0 1 6 0 v1.5"></path></svg>
+              Dans la boîte à outils
+            </div>
+            <div style="display:flex; align-items:flex-end; justify-content:space-between; gap:16px; flex-wrap:wrap;">
+              <div style="flex:1 1 320px; min-width:0;">
+                <h2 style="font-family:'Fredoka',sans-serif; font-weight:600; font-size:clamp(32px,4vw,44px); color:#FBEEDC; margin:14px 0 10px; text-shadow:0 2px 8px rgba(58,28,11,0.4);">La stack</h2>
+                <p style="font-size:17px; line-height:1.65; color:#F0CFAD; max-width:640px; margin:0 0 8px;">Des briques simples et standard, celles que l'on retrouve en entreprise. Le couvercle est ouvert : vous regardez l'intérieur de la caisse, plateau par plateau — chaque plateau range un étage du projet.</p>
+              </div>
+              <div style="position:relative; flex:none; margin:0 6px 10px 0;">
+                <span aria-hidden="true" style="position:absolute; left:-14px; top:12px; width:16px; height:1.5px; background:rgba(255,220,190,0.5); transform:rotate(-38deg);"></span>
+                <div style="position:relative; background:#EBD3A7; border:1.5px solid rgba(122,88,46,0.42); border-radius:9px; padding:7px 14px 8px 26px; font-family:'Fredoka',sans-serif; font-weight:500; font-size:13.5px; color:#53381F; transform:rotate(2.5deg); box-shadow:0 5px 12px rgba(40,18,6,0.4);">
+                  <span style="position:absolute; left:9px; top:50%; transform:translateY(-50%); width:7px; height:7px; border-radius:50%; background:#7A3A18; box-shadow:inset 0 0 0 1.5px #A8834F;"></span>
+                  7 plateaux — inventaire à jour
+                </div>
+              </div>
+            </div>
+
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(270px, 1fr)); gap:16px; margin-top:16px;">
+              <div style="position:relative; background:#FBF0DC; border:2px solid #7F9C6B; border-radius:16px; padding:44px 22px 20px; box-shadow:0 14px 30px rgba(40,18,6,0.35), inset 0 2px 0 rgba(255,255,255,0.6);">
+                <div aria-hidden="true" style="position:absolute; top:11px; left:50%; transform:translateX(-50%); width:94px; height:15px; border-radius:999px; background:linear-gradient(180deg,#5A2B12,#7A4020); box-shadow:inset 0 2px 4px rgba(0,0,0,0.5), 0 1.5px 0 rgba(255,255,255,0.5);"></div>
+                <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:14px;">
+                  <h3 style="display:inline-flex; align-items:center; gap:9px; background:#E8703A; color:#3A1C0B; border-radius:7px; padding:5px 12px; margin:0; font-family:'Fredoka',sans-serif; font-weight:500; font-size:15px; box-shadow:inset 0 1.5px 0 rgba(255,255,255,0.35), 0 2px 5px rgba(58,28,11,0.3);"><span style="width:5px; height:5px; border-radius:50%; background:#8A3D16; flex:none;"></span>Système &amp; sécurité<span style="width:5px; height:5px; border-radius:50%; background:#8A3D16; flex:none;"></span></h3>
+                  <span style="background:#7F9C6B; color:#F7F2E2; font-weight:800; font-size:10.5px; letter-spacing:0.05em; border-radius:999px; padding:3px 9px; flex:none;">EN PLACE</span>
+                <span style="position:absolute; top:16px; right:16px; font-family:ui-monospace,Menlo,monospace; font-size:9px; font-weight:700; letter-spacing:0.16em; color:#BBA98A;">PLATEAU 1/7</span>
+                </div>
+                <div style="display:grid; gap:0;">
+                  <div style="display:flex; justify-content:space-between; gap:10px; padding:8px 0; border-top:1px dashed #E0D2AE;"><span style="font-weight:800; font-size:14px; color:#4A3521;">Debian 13</span><span style="font-size:13px; color:#8C6A4F; text-align:right;">système de base</span></div>
+                  <div style="display:flex; justify-content:space-between; gap:10px; padding:8px 0; border-top:1px dashed #E0D2AE;"><span style="font-weight:800; font-size:14px; color:#4A3521;">OpenSSH</span><span style="font-size:13px; color:#8C6A4F; text-align:right;">clés Ed25519 uniquement</span></div>
+                  <div style="display:flex; justify-content:space-between; gap:10px; padding:8px 0; border-top:1px dashed #E0D2AE;"><span style="font-weight:800; font-size:14px; color:#4A3521;">ufw</span><span style="font-size:13px; color:#8C6A4F; text-align:right;">pare-feu, deny by default</span></div>
+                  <div style="display:flex; justify-content:space-between; gap:10px; padding:8px 0; border-top:1px dashed #E0D2AE;"><span style="font-weight:800; font-size:14px; color:#4A3521;">fail2ban</span><span style="font-size:13px; color:#8C6A4F; text-align:right;">bannissement progressif</span></div>
+                  <div style="display:flex; justify-content:space-between; gap:10px; padding:8px 0; border-top:1px dashed #E0D2AE;"><span style="font-weight:800; font-size:14px; color:#4A3521;">nftables</span><span style="font-size:13px; color:#8C6A4F; text-align:right;">application des blocages</span></div>
+                </div>
+              </div>
+              <div style="position:relative; background:#FBF0DC; border:2px solid #5A2B12; border-radius:16px; padding:44px 22px 20px; box-shadow:0 14px 30px rgba(40,18,6,0.35), inset 0 2px 0 rgba(255,255,255,0.6);">
+                <div aria-hidden="true" style="position:absolute; top:11px; left:50%; transform:translateX(-50%); width:94px; height:15px; border-radius:999px; background:linear-gradient(180deg,#5A2B12,#7A4020); box-shadow:inset 0 2px 4px rgba(0,0,0,0.5), 0 1.5px 0 rgba(255,255,255,0.5);"></div>
+                <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:14px;">
+                  <h3 style="display:inline-flex; align-items:center; gap:9px; background:#E8703A; color:#3A1C0B; border-radius:7px; padding:5px 12px; margin:0; font-family:'Fredoka',sans-serif; font-weight:500; font-size:15px; box-shadow:inset 0 1.5px 0 rgba(255,255,255,0.35), 0 2px 5px rgba(58,28,11,0.3);"><span style="width:5px; height:5px; border-radius:50%; background:#8A3D16; flex:none;"></span>Conteneurisation<span style="width:5px; height:5px; border-radius:50%; background:#8A3D16; flex:none;"></span></h3>
+                  <span style="border:1.5px solid #C9B48C; color:#8C6A4F; font-weight:800; font-size:10.5px; letter-spacing:0.05em; border-radius:999px; padding:3px 9px; flex:none;">PHASE 2</span>
+                <span style="position:absolute; top:16px; right:16px; font-family:ui-monospace,Menlo,monospace; font-size:9px; font-weight:700; letter-spacing:0.16em; color:#BBA98A;">PLATEAU 2/7</span>
+                </div>
+                <div style="display:grid; gap:0;">
+                  <div style="display:flex; justify-content:space-between; gap:10px; padding:8px 0; border-top:1px dashed #E0D2AE;"><span style="font-weight:800; font-size:14px; color:#4A3521;">Docker</span><span style="font-size:13px; color:#8C6A4F; text-align:right;">isolation des services</span></div>
+                  <div style="display:flex; justify-content:space-between; gap:10px; padding:8px 0; border-top:1px dashed #E0D2AE;"><span style="font-weight:800; font-size:14px; color:#4A3521;">Docker Compose</span><span style="font-size:13px; color:#8C6A4F; text-align:right;">orchestration déclarative</span></div>
+                </div>
+              </div>
+              <div style="position:relative; background:#FBF0DC; border:2px solid #5A2B12; border-radius:16px; padding:44px 22px 20px; box-shadow:0 14px 30px rgba(40,18,6,0.35), inset 0 2px 0 rgba(255,255,255,0.6);">
+                <div aria-hidden="true" style="position:absolute; top:11px; left:50%; transform:translateX(-50%); width:94px; height:15px; border-radius:999px; background:linear-gradient(180deg,#5A2B12,#7A4020); box-shadow:inset 0 2px 4px rgba(0,0,0,0.5), 0 1.5px 0 rgba(255,255,255,0.5);"></div>
+                <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:14px;">
+                  <h3 style="display:inline-flex; align-items:center; gap:9px; background:#E8703A; color:#3A1C0B; border-radius:7px; padding:5px 12px; margin:0; font-family:'Fredoka',sans-serif; font-weight:500; font-size:15px; box-shadow:inset 0 1.5px 0 rgba(255,255,255,0.35), 0 2px 5px rgba(58,28,11,0.3);"><span style="width:5px; height:5px; border-radius:50%; background:#8A3D16; flex:none;"></span>Réseau &amp; exposition<span style="width:5px; height:5px; border-radius:50%; background:#8A3D16; flex:none;"></span></h3>
+                  <span style="border:1.5px solid #C9B48C; color:#8C6A4F; font-weight:800; font-size:10.5px; letter-spacing:0.05em; border-radius:999px; padding:3px 9px; flex:none;">PHASE 3</span>
+                <span style="position:absolute; top:16px; right:16px; font-family:ui-monospace,Menlo,monospace; font-size:9px; font-weight:700; letter-spacing:0.16em; color:#BBA98A;">PLATEAU 3/7</span>
+                </div>
+                <div style="display:grid; gap:0;">
+                  <div style="display:flex; justify-content:space-between; gap:10px; padding:8px 0; border-top:1px dashed #E0D2AE;"><span style="font-weight:800; font-size:14px; color:#4A3521;">Caddy</span><span style="font-size:13px; color:#8C6A4F; text-align:right;">reverse proxy, HTTPS auto</span></div>
+                </div>
+              </div>
+              <div style="position:relative; background:#FBF0DC; border:2px solid #5A2B12; border-radius:16px; padding:44px 22px 20px; box-shadow:0 14px 30px rgba(40,18,6,0.35), inset 0 2px 0 rgba(255,255,255,0.6);">
+                <div aria-hidden="true" style="position:absolute; top:11px; left:50%; transform:translateX(-50%); width:94px; height:15px; border-radius:999px; background:linear-gradient(180deg,#5A2B12,#7A4020); box-shadow:inset 0 2px 4px rgba(0,0,0,0.5), 0 1.5px 0 rgba(255,255,255,0.5);"></div>
+                <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:14px;">
+                  <h3 style="display:inline-flex; align-items:center; gap:9px; background:#E8703A; color:#3A1C0B; border-radius:7px; padding:5px 12px; margin:0; font-family:'Fredoka',sans-serif; font-weight:500; font-size:15px; box-shadow:inset 0 1.5px 0 rgba(255,255,255,0.35), 0 2px 5px rgba(58,28,11,0.3);"><span style="width:5px; height:5px; border-radius:50%; background:#8A3D16; flex:none;"></span>CI/CD<span style="width:5px; height:5px; border-radius:50%; background:#8A3D16; flex:none;"></span></h3>
+                  <span style="border:1.5px solid #C9B48C; color:#8C6A4F; font-weight:800; font-size:10.5px; letter-spacing:0.05em; border-radius:999px; padding:3px 9px; flex:none;">PHASE 4</span>
+                <span style="position:absolute; top:16px; right:16px; font-family:ui-monospace,Menlo,monospace; font-size:9px; font-weight:700; letter-spacing:0.16em; color:#BBA98A;">PLATEAU 4/7</span>
+                </div>
+                <div style="display:grid; gap:0;">
+                  <div style="display:flex; justify-content:space-between; gap:10px; padding:8px 0; border-top:1px dashed #E0D2AE;"><span style="font-weight:800; font-size:14px; color:#4A3521;">GitHub Actions</span><span style="font-size:13px; color:#8C6A4F; text-align:right;">tests et déploiement SSH</span></div>
+                </div>
+              </div>
+              <div style="position:relative; background:#FBF0DC; border:2px solid #5A2B12; border-radius:16px; padding:44px 22px 20px; box-shadow:0 14px 30px rgba(40,18,6,0.35), inset 0 2px 0 rgba(255,255,255,0.6);">
+                <div aria-hidden="true" style="position:absolute; top:11px; left:50%; transform:translateX(-50%); width:94px; height:15px; border-radius:999px; background:linear-gradient(180deg,#5A2B12,#7A4020); box-shadow:inset 0 2px 4px rgba(0,0,0,0.5), 0 1.5px 0 rgba(255,255,255,0.5);"></div>
+                <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:14px;">
+                  <h3 style="display:inline-flex; align-items:center; gap:9px; background:#E8703A; color:#3A1C0B; border-radius:7px; padding:5px 12px; margin:0; font-family:'Fredoka',sans-serif; font-weight:500; font-size:15px; box-shadow:inset 0 1.5px 0 rgba(255,255,255,0.35), 0 2px 5px rgba(58,28,11,0.3);"><span style="width:5px; height:5px; border-radius:50%; background:#8A3D16; flex:none;"></span>Observabilité<span style="width:5px; height:5px; border-radius:50%; background:#8A3D16; flex:none;"></span></h3>
+                  <span style="border:1.5px solid #C9B48C; color:#8C6A4F; font-weight:800; font-size:10.5px; letter-spacing:0.05em; border-radius:999px; padding:3px 9px; flex:none;">PHASE 5</span>
+                <span style="position:absolute; top:16px; right:16px; font-family:ui-monospace,Menlo,monospace; font-size:9px; font-weight:700; letter-spacing:0.16em; color:#BBA98A;">PLATEAU 5/7</span>
+                </div>
+                <div style="display:grid; gap:0;">
+                  <div style="display:flex; justify-content:space-between; gap:10px; padding:8px 0; border-top:1px dashed #E0D2AE;"><span style="font-weight:800; font-size:14px; color:#4A3521;">Prometheus</span><span style="font-size:13px; color:#8C6A4F; text-align:right;">collecte de métriques</span></div>
+                  <div style="display:flex; justify-content:space-between; gap:10px; padding:8px 0; border-top:1px dashed #E0D2AE;"><span style="font-weight:800; font-size:14px; color:#4A3521;">Grafana</span><span style="font-size:13px; color:#8C6A4F; text-align:right;">tableaux de bord</span></div>
+                </div>
+              </div>
+              <div style="position:relative; background:#FBF0DC; border:2px solid #5A2B12; border-radius:16px; padding:44px 22px 20px; box-shadow:0 14px 30px rgba(40,18,6,0.35), inset 0 2px 0 rgba(255,255,255,0.6);">
+                <div aria-hidden="true" style="position:absolute; top:11px; left:50%; transform:translateX(-50%); width:94px; height:15px; border-radius:999px; background:linear-gradient(180deg,#5A2B12,#7A4020); box-shadow:inset 0 2px 4px rgba(0,0,0,0.5), 0 1.5px 0 rgba(255,255,255,0.5);"></div>
+                <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:14px;">
+                  <h3 style="display:inline-flex; align-items:center; gap:9px; background:#E8703A; color:#3A1C0B; border-radius:7px; padding:5px 12px; margin:0; font-family:'Fredoka',sans-serif; font-weight:500; font-size:15px; box-shadow:inset 0 1.5px 0 rgba(255,255,255,0.35), 0 2px 5px rgba(58,28,11,0.3);"><span style="width:5px; height:5px; border-radius:50%; background:#8A3D16; flex:none;"></span>Infrastructure as Code<span style="width:5px; height:5px; border-radius:50%; background:#8A3D16; flex:none;"></span></h3>
+                  <span style="border:1.5px solid #C9B48C; color:#8C6A4F; font-weight:800; font-size:10.5px; letter-spacing:0.05em; border-radius:999px; padding:3px 9px; flex:none;">PHASES 6–7</span>
+                <span style="position:absolute; top:16px; right:16px; font-family:ui-monospace,Menlo,monospace; font-size:9px; font-weight:700; letter-spacing:0.16em; color:#BBA98A;">PLATEAU 6/7</span>
+                </div>
+                <div style="display:grid; gap:0;">
+                  <div style="display:flex; justify-content:space-between; gap:10px; padding:8px 0; border-top:1px dashed #E0D2AE;"><span style="font-weight:800; font-size:14px; color:#4A3521;">Ansible</span><span style="font-size:13px; color:#8C6A4F; text-align:right;">configuration rejouable</span></div>
+                  <div style="display:flex; justify-content:space-between; gap:10px; padding:8px 0; border-top:1px dashed #E0D2AE;"><span style="font-weight:800; font-size:14px; color:#4A3521;">Terraform</span><span style="font-size:13px; color:#8C6A4F; text-align:right;">provisionnement</span></div>
+                </div>
+              </div>
+              <div style="position:relative; background:rgba(251,240,220,0.75); border:2px dashed #8A5A30; border-radius:16px; padding:44px 22px 20px;">
+                <div aria-hidden="true" style="position:absolute; top:11px; left:50%; transform:translateX(-50%); width:94px; height:15px; border-radius:999px; background:rgba(90,43,18,0.45); box-shadow:inset 0 2px 4px rgba(0,0,0,0.35);"></div>
+                <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:14px;">
+                  <h3 style="display:inline-flex; align-items:center; gap:9px; background:rgba(232,112,58,0.35); color:#4A2410; border-radius:7px; padding:5px 12px; margin:0; font-family:'Fredoka',sans-serif; font-weight:500; font-size:15px;"><span style="width:5px; height:5px; border-radius:50%; background:#8A3D16; flex:none;"></span>Orchestration<span style="width:5px; height:5px; border-radius:50%; background:#8A3D16; flex:none;"></span></h3>
+                  <span style="border:1.5px dashed #C3B394; color:#8C6A4F; font-weight:800; font-size:10.5px; letter-spacing:0.05em; border-radius:999px; padding:3px 9px; flex:none;">OPTIONNEL</span>
+                <span style="position:absolute; top:16px; right:16px; font-family:ui-monospace,Menlo,monospace; font-size:9px; font-weight:700; letter-spacing:0.16em; color:#BBA98A;">PLATEAU 7/7</span>
+                </div>
+                <div style="display:grid; gap:0;">
+                  <div style="display:flex; justify-content:space-between; gap:10px; padding:8px 0; border-top:1px dashed #E0D2AE;"><span style="font-weight:800; font-size:14px; color:#6E5137;">k3s</span><span style="font-size:13px; color:#A08D6E; text-align:right;">Kubernetes léger · phase 9</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </sc-if>
+
+      <sc-if value="{{isMonitoring}}" hint-placeholder-val="{{false}}">
+        <section data-screen-label="Section — Monitoring" style="max-width:880px; margin:0 auto; padding:clamp(22px,4vw,40px) clamp(18px,4vw,40px) 90px;">
+          <div style="position:relative; border:3px solid #C08F3C; border-radius:30px; background:#FDF6E4; box-shadow:0 0 0 7px rgba(192,143,60,0.20), 0 18px 42px rgba(90,60,20,0.15); padding:22px clamp(20px,4vw,32px) 26px; margin:4px 0 22px;">
+            <span aria-hidden="true" style="position:absolute; top:13px; left:13px; width:13px; height:13px; border-radius:50%; background:radial-gradient(circle at 35% 30%, #E8CE9C, #B08A48); box-shadow:inset 0 -1px 2px rgba(90,60,20,0.5);"><span style="position:absolute; left:2px; right:2px; top:5.5px; height:2px; background:rgba(74,53,33,0.55); transform:rotate(45deg); border-radius:2px; display:block;"></span></span>
+            <span aria-hidden="true" style="position:absolute; top:13px; right:13px; width:13px; height:13px; border-radius:50%; background:radial-gradient(circle at 35% 30%, #E8CE9C, #B08A48); box-shadow:inset 0 -1px 2px rgba(90,60,20,0.5);"><span style="position:absolute; left:2px; right:2px; top:5.5px; height:2px; background:rgba(74,53,33,0.55); transform:rotate(-30deg); border-radius:2px; display:block;"></span></span>
+            <span aria-hidden="true" style="position:absolute; bottom:13px; left:13px; width:13px; height:13px; border-radius:50%; background:radial-gradient(circle at 35% 30%, #E8CE9C, #B08A48); box-shadow:inset 0 -1px 2px rgba(90,60,20,0.5);"><span style="position:absolute; left:2px; right:2px; top:5.5px; height:2px; background:rgba(74,53,33,0.55); transform:rotate(70deg); border-radius:2px; display:block;"></span></span>
+            <span aria-hidden="true" style="position:absolute; bottom:13px; right:13px; width:13px; height:13px; border-radius:50%; background:radial-gradient(circle at 35% 30%, #E8CE9C, #B08A48); box-shadow:inset 0 -1px 2px rgba(90,60,20,0.5);"><span style="position:absolute; left:2px; right:2px; top:5.5px; height:2px; background:rgba(74,53,33,0.55); transform:rotate(10deg); border-radius:2px; display:block;"></span></span>
+
+            <div style="display:flex; justify-content:space-between; align-items:flex-end; margin:0 0 20px; padding:0 20px;">
+              <span style="width:3px; height:13px; border-radius:2px; background:#A87A22;"></span>
+              <span style="width:3px; height:9px; border-radius:2px; background:#C9AA6A;"></span>
+              <span style="width:3px; height:13px; border-radius:2px; background:#A87A22;"></span>
+              <span style="width:3px; height:9px; border-radius:2px; background:#C9AA6A;"></span>
+              <span style="width:3px; height:18px; border-radius:2px; background:#C85A45;"></span>
+              <span style="width:3px; height:9px; border-radius:2px; background:#C9AA6A;"></span>
+              <span style="width:3px; height:13px; border-radius:2px; background:#A87A22;"></span>
+              <span style="width:3px; height:9px; border-radius:2px; background:#C9AA6A;"></span>
+              <span style="width:3px; height:13px; border-radius:2px; background:#A87A22;"></span>
+            </div>
+            <div style="display:inline-flex; align-items:center; gap:8px; background:rgba(217,164,65,0.18); color:#A87A22; border-radius:999px; padding:6px 14px 6px 10px; font-weight:800; font-size:12px; letter-spacing:0.08em; text-transform:uppercase;">
+              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="8.5"></circle><line x1="12" y1="12" x2="16.2" y2="8.6"></line></svg>
+              Sur le cadran
+            </div>
+            <h2 style="font-family:'Fredoka',sans-serif; font-weight:600; font-size:clamp(32px,4vw,44px); color:#4A3521; margin:14px 0 10px;">Monitoring</h2>
+            <p style="font-size:17px; line-height:1.65; color:#6E5137; max-width:640px; margin:0;">L'observabilité du lab n'est pas encore en service. Cette page présente ce qui est prévu — rien de plus.</p>
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap; margin-top:16px;">
+              <div style="display:flex; align-items:center;">
+                <span style="width:13px; height:13px; border-radius:50%; background:#C08F3C; box-shadow:inset 0 1.5px 2px rgba(255,255,255,0.6), 0 1px 3px rgba(90,60,20,0.4); flex:none;"></span>
+                <span style="width:120px; height:4px; border-radius:999px; background:#C85A45; transform:rotate(-13deg); transform-origin:left center; margin-left:-3px;"></span>
+              </div>
+              <span style="font-family:ui-monospace,Menlo,monospace; font-size:10px; font-weight:700; letter-spacing:0.16em; color:#8A6A33; border:1px solid rgba(138,106,51,0.4); border-radius:4px; padding:3px 9px; background:rgba(192,143,60,0.09);">ÉTALONNAGE · JUIL 2026</span>
+            </div>
+          </div>
+
+          <div style="display:grid; gap:16px;">
+            <div style="display:flex; align-items:center; gap:14px; background:rgba(217,164,65,0.12); border:1.5px solid rgba(217,164,65,0.55); border-radius:18px; padding:18px 22px;">
+              <span style="background:#D9A441; color:#4A3521; font-weight:800; font-size:11px; letter-spacing:0.06em; border-radius:999px; padding:5px 12px; flex:none;">À VENIR · PHASE 5</span>
+              <p style="font-size:14.5px; line-height:1.6; color:#6E5137; margin:0;">Aucune donnée réelle n'est affichée ici pour l'instant : le monitoring sera branché quand la phase 5 démarrera.</p>
+            </div>
+            <div style="background:#FAF3E3; border:1.5px solid #E6D6B6; border-radius:18px; padding:24px 26px;">
+              <h3 style="font-family:'Fredoka',sans-serif; font-weight:500; font-size:20px; color:#A87A22; margin:0 0 10px;">Ce qui est prévu</h3>
+              <p style="font-size:15.5px; line-height:1.7; color:#5D4633; margin:0 0 20px;">Prometheus collectera les métriques du serveur et des conteneurs : processeur, mémoire, disque, réseau, état des services. Grafana les mettra en forme dans des tableaux de bord lisibles en un coup d'œil — santé de la machine, trafic bloqué par le pare-feu, activité de fail2ban.</p>
+              <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:14px;">
+                <div style="position:relative; width:min(100%, 168px); aspect-ratio:1; margin:0 auto;">
+                  <div style="position:absolute; inset:0; border-radius:50%; border:3px dashed #C3B394; background:rgba(255,252,244,0.65);"></div>
+                  <div style="position:absolute; inset:9px; border-radius:50%; background:repeating-conic-gradient(rgba(138,116,88,0.45) 0 2deg, transparent 2deg 30deg);"></div>
+                  <div style="position:absolute; inset:17px; border-radius:50%; background:#FBF4E2;"></div>
+                  <div style="position:relative; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px;">
+                    <div style="font-size:11.5px; font-weight:800; letter-spacing:0.08em; text-transform:uppercase; color:#A08D6E;">CPU</div>
+                    <div style="font-family:'Fredoka',sans-serif; font-weight:500; font-size:32px; color:#C3B394;">—</div>
+                    <div style="font-size:12px; color:#A08D6E;">données à venir</div>
+                  </div>
+                </div>
+                <div style="position:relative; width:min(100%, 168px); aspect-ratio:1; margin:0 auto;">
+                  <div style="position:absolute; inset:0; border-radius:50%; border:3px dashed #C3B394; background:rgba(255,252,244,0.65);"></div>
+                  <div style="position:absolute; inset:9px; border-radius:50%; background:repeating-conic-gradient(rgba(138,116,88,0.45) 0 2deg, transparent 2deg 30deg);"></div>
+                  <div style="position:absolute; inset:17px; border-radius:50%; background:#FBF4E2;"></div>
+                  <div style="position:relative; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px;">
+                    <div style="font-size:11.5px; font-weight:800; letter-spacing:0.08em; text-transform:uppercase; color:#A08D6E;">Mémoire</div>
+                    <div style="font-family:'Fredoka',sans-serif; font-weight:500; font-size:32px; color:#C3B394;">—</div>
+                    <div style="font-size:12px; color:#A08D6E;">données à venir</div>
+                  </div>
+                </div>
+                <div style="position:relative; width:min(100%, 168px); aspect-ratio:1; margin:0 auto;">
+                  <div style="position:absolute; inset:0; border-radius:50%; border:3px dashed #C3B394; background:rgba(255,252,244,0.65);"></div>
+                  <div style="position:absolute; inset:9px; border-radius:50%; background:repeating-conic-gradient(rgba(138,116,88,0.45) 0 2deg, transparent 2deg 30deg);"></div>
+                  <div style="position:absolute; inset:17px; border-radius:50%; background:#FBF4E2;"></div>
+                  <div style="position:relative; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px;">
+                    <div style="font-size:11.5px; font-weight:800; letter-spacing:0.08em; text-transform:uppercase; color:#A08D6E;">IP bannies</div>
+                    <div style="font-family:'Fredoka',sans-serif; font-weight:500; font-size:32px; color:#C3B394;">—</div>
+                    <div style="font-size:12px; color:#A08D6E;">données à venir</div>
+                  </div>
+                </div>
+              </div>
+              <div style="font-size:12px; font-weight:700; color:#A08D6E; text-align:center; margin-top:14px;">maquette — les vraies tuiles seront servies par Grafana</div>
+            </div>
+            <div style="background:#FAF3E3; border:1.5px solid #E6D6B6; border-radius:18px; padding:24px 26px;">
+              <h3 style="font-family:'Fredoka',sans-serif; font-weight:500; font-size:20px; color:#A87A22; margin:0 0 10px;">Pourquoi attendre la phase 5</h3>
+              <p style="font-size:15.5px; line-height:1.7; color:#5D4633; margin:0;">Prometheus et Grafana tourneront eux-mêmes dans des conteneurs, derrière le reverse proxy. Le monitoring arrive donc logiquement après la conteneurisation (phase 2) et l'exposition web (phase 3) : on ne monte pas la vigie avant les fondations.</p>
+            </div>
+          </div>
+        </section>
+      </sc-if>
+
+      <sc-if value="{{isJournal}}" hint-placeholder-val="{{false}}">
+        <section data-screen-label="Section — Journal" style="max-width:800px; margin:0 auto; padding:clamp(22px,4vw,40px) clamp(16px,4vw,36px) 90px;">
+          <div style="display:inline-flex; align-items:center; gap:8px; background:rgba(181,101,77,0.14); color:#A05540; border-radius:999px; padding:6px 14px 6px 10px; font-weight:800; font-size:12px; letter-spacing:0.08em; text-transform:uppercase;">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="3.5" y="5.5" width="17" height="14" rx="2.5"></rect><line x1="3.5" y1="10" x2="20.5" y2="10"></line><line x1="8" y1="3.5" x2="8" y2="7"></line><line x1="16" y1="3.5" x2="16" y2="7"></line></svg>
+            Les feuillets du calendrier
+          </div>
+          <h2 style="font-family:'Fredoka',sans-serif; font-weight:600; font-size:clamp(32px,4vw,44px); color:#4A3521; margin:14px 0 10px;">Journal de bord</h2>
+          <p style="font-size:17px; line-height:1.65; color:#6E5137; max-width:640px; margin:0 0 30px;">L'avancement du lab, dans l'ordre où il s'est vraiment passé — trouvailles et pièges compris. Un feuillet par étape.</p>
+
+          <div style="max-width:540px; margin:0 auto 26px;">
+            <div style="position:relative; z-index:2; display:flex; justify-content:center; gap:110px; margin-bottom:-13px;">
+              <span style="width:22px; height:22px; border-radius:50%; border:3.5px solid #8A7458; box-shadow:0 2px 3px rgba(90,60,20,0.25);"></span>
+              <span style="width:22px; height:22px; border-radius:50%; border:3.5px solid #8A7458; box-shadow:0 2px 3px rgba(90,60,20,0.25);"></span>
+            </div>
+            <div style="background:#FBF3E0; border:1.5px solid #E2D2AE; border-radius:14px; box-shadow:0 16px 34px rgba(90,60,20,0.13); transform:rotate(-0.3deg); overflow:hidden;">
+              <div style="position:relative; display:flex; align-items:center; justify-content:space-between; gap:12px; background:#B5654D; padding:13px 18px 12px;">
+                <span style="position:absolute; top:6px; left:19%; width:10px; height:10px; border-radius:50%; background:#F3E7CC; box-shadow:inset 0 1.5px 2px rgba(0,0,0,0.3);"></span>
+                <span style="position:absolute; top:6px; right:19%; width:10px; height:10px; border-radius:50%; background:#F3E7CC; box-shadow:inset 0 1.5px 2px rgba(0,0,0,0.3);"></span>
+                <span style="font-family:'Fredoka',sans-serif; font-weight:600; font-size:16px; color:#FBF3E0;">Juillet 2026</span>
+                <span style="font-family:'Caveat',cursive; font-weight:600; font-size:17px; color:#FBE3D2; transform:rotate(-2deg);">cliquez un jour ↓</span>
+              </div>
+              <div style="padding:14px 16px 15px;">
+                <div style="display:grid; grid-template-columns:repeat(7,1fr); gap:4px; margin-bottom:6px; text-align:center; font-size:11px; font-weight:800; letter-spacing:0.08em; color:#A08D6E;">
+                  <span>L</span><span>M</span><span>M</span><span>J</span><span>V</span><span>S</span><span>D</span>
+                </div>
+                <div style="display:grid; grid-template-columns:repeat(7,1fr); gap:4px;">
+                  <sc-for list="{{calCells}}" as="c" hint-placeholder-count="35">
+                    <button type="button" data-day="{{c.day}}" disabled="{{c.off}}" onClick="{{pickDay}}" style="aspect-ratio:1; min-height:34px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; border:none; border-radius:9px; padding:0; font-family:'Nunito',sans-serif; font-size:14px; font-weight:{{c.fw}}; background:{{c.bg}}; color:{{c.fg}}; box-shadow:{{c.sh}}; cursor:{{c.cur}};">
+                      <span>{{c.num}}</span>
+                      <span style="width:5px; height:5px; border-radius:50%; background:{{c.dotBg}};"></span>
+                    </button>
+                  </sc-for>
+                </div>
+                <div style="display:flex; align-items:center; gap:16px; margin-top:12px; font-size:12px; color:#A08D6E; font-weight:700;">
+                  <span style="display:inline-flex; align-items:center; gap:6px;"><span style="width:10px; height:10px; border-radius:3px; background:rgba(181,101,77,0.16); box-shadow:inset 0 0 0 1.2px #B5654D;"></span>jour travaillé</span>
+                  <span style="display:inline-flex; align-items:center; gap:6px;"><span style="width:10px; height:10px; border-radius:50%; box-shadow:inset 0 0 0 1.8px #3E8E9C;"></span>aujourd'hui</span>
+                </div>
+              </div>
+            </div>
+
+            <sc-if value="{{dayOpen}}" hint-placeholder-val="{{false}}">
+              <article style="position:relative; background:#FFFDF6; border:1.5px solid #DEC9A2; border-radius:14px; box-shadow:0 12px 26px rgba(90,60,20,0.12); margin:16px 0 0; transform:rotate(0.25deg); overflow:hidden;">
+                <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; background:rgba(181,101,77,0.14); padding:11px 18px;">
+                  <span style="font-family:'Fredoka',sans-serif; font-weight:500; font-size:15.5px; color:#A05540;">{{dayLabel}}</span>
+                  <span style="background:#B5654D; color:#FBF3E0; font-weight:800; font-size:10.5px; letter-spacing:0.07em; border-radius:999px; padding:3px 10px; flex:none;">{{dayPhase}}</span>
+                </div>
+                <div style="padding:2px 20px 14px;">
+                  <sc-for list="{{dayItems}}" as="it" hint-placeholder-count="2">
+                    <div style="padding:11px 0 12px; border-top:1px dashed #EADFC4;">
+                      <h4 style="font-family:'Fredoka',sans-serif; font-weight:500; font-size:16px; color:#4A3521; margin:0 0 4px;">{{it.t}}</h4>
+                      <p style="font-size:14.5px; line-height:1.65; color:#5D4633; margin:0;">{{it.s}}</p>
+                    </div>
+                  </sc-for>
+                </div>
+              </article>
+            </sc-if>
+          </div>
+
+          <div style="display:flex; align-items:center; gap:14px; margin:34px 0 20px;">
+            <span style="flex:1; height:1.5px; background:rgba(138,116,88,0.35);"></span>
+            <span style="font-family:'Caveat',cursive; font-weight:600; font-size:20px; color:#8C6A4F; transform:rotate(-1.5deg);">tous les feuillets, dans l'ordre</span>
+            <span style="flex:1; height:1.5px; background:rgba(138,116,88,0.35);"></span>
+          </div>
+
+          <div style="position:relative; z-index:2; display:flex; justify-content:center; gap:30px; margin-bottom:-14px;">
+            <span style="width:24px; height:24px; border-radius:50%; border:3.5px solid #8A7458; box-shadow:0 2px 3px rgba(90,60,20,0.25);"></span>
+            <span style="width:24px; height:24px; border-radius:50%; border:3.5px solid #8A7458; box-shadow:0 2px 3px rgba(90,60,20,0.25);"></span>
+            <span style="width:24px; height:24px; border-radius:50%; border:3.5px solid #8A7458; box-shadow:0 2px 3px rgba(90,60,20,0.25);"></span>
+            <span style="width:24px; height:24px; border-radius:50%; border:3.5px solid #8A7458; box-shadow:0 2px 3px rgba(90,60,20,0.25);"></span>
+            <span style="width:24px; height:24px; border-radius:50%; border:3.5px solid #8A7458; box-shadow:0 2px 3px rgba(90,60,20,0.25);"></span>
+            <span style="width:24px; height:24px; border-radius:50%; border:3.5px solid #8A7458; box-shadow:0 2px 3px rgba(90,60,20,0.25);"></span>
+          </div>
+
+          <article style="position:relative; background:#FBF3E0; border:1.5px solid #E2D2AE; border-radius:14px; box-shadow:0 16px 34px rgba(90,60,20,0.13); margin:0 0 24px; transform:rotate(-0.35deg); overflow:hidden;">
+            <span aria-hidden="true" style="position:absolute; right:14px; bottom:-8px; font-family:'Fredoka',sans-serif; font-weight:600; font-size:74px; line-height:1; color:rgba(90,60,20,0.06); z-index:-1;">1</span>
+            <div style="position:relative; display:flex; align-items:center; justify-content:space-between; gap:12px; background:#3E8E9C; padding:14px 20px 13px;">
+              <span style="position:absolute; top:7px; left:22%; width:11px; height:11px; border-radius:50%; background:#F3E7CC; box-shadow:inset 0 1.5px 2px rgba(0,0,0,0.3);"></span>
+              <span style="position:absolute; top:7px; right:22%; width:11px; height:11px; border-radius:50%; background:#F3E7CC; box-shadow:inset 0 1.5px 2px rgba(0,0,0,0.3);"></span>
+              <span style="font-family:'Fredoka',sans-serif; font-weight:600; font-size:16px; color:#FBF3E0;">06 · 07 · 2026</span>
+              <span style="background:rgba(251,243,224,0.22); color:#FBF3E0; font-weight:800; font-size:11px; letter-spacing:0.07em; border-radius:999px; padding:4px 11px;">PHASE 1</span>
+            </div>
+            <div style="padding:20px 24px 22px;">
+              <h3 style="font-family:'Fredoka',sans-serif; font-weight:500; font-size:19px; color:#4A3521; margin:0 0 8px;">Premier accès au serveur</h3>
+              <p style="font-size:15px; line-height:1.7; color:#5D4633; margin:0;">Réception du VPS OVH sous Debian 13, et première surprise avant même de commencer : impossible de se connecter en root, y compris depuis la console web du fournisseur. En réalité, OVH livre la machine avec un utilisateur « debian », et c'est par lui qu'il faut passer. Premier réflexe appris : lire la documentation du fournisseur avant de soupçonner sa propre configuration.</p>
+            </div>
+          </article>
+
+          <article style="position:relative; background:#FBF3E0; border:1.5px solid #E2D2AE; border-radius:14px; box-shadow:0 16px 34px rgba(90,60,20,0.13); margin:0 0 24px; transform:rotate(0.3deg); overflow:hidden;">
+            <span aria-hidden="true" style="position:absolute; right:14px; bottom:-8px; font-family:'Fredoka',sans-serif; font-weight:600; font-size:74px; line-height:1; color:rgba(90,60,20,0.06); z-index:-1;">2</span>
+            <div style="position:relative; display:flex; align-items:center; justify-content:space-between; gap:12px; background:#3E8E9C; padding:14px 20px 13px;">
+              <span style="position:absolute; top:7px; left:22%; width:11px; height:11px; border-radius:50%; background:#F3E7CC; box-shadow:inset 0 1.5px 2px rgba(0,0,0,0.3);"></span>
+              <span style="position:absolute; top:7px; right:22%; width:11px; height:11px; border-radius:50%; background:#F3E7CC; box-shadow:inset 0 1.5px 2px rgba(0,0,0,0.3);"></span>
+              <span style="font-family:'Fredoka',sans-serif; font-weight:600; font-size:16px; color:#FBF3E0;">06 · 07 · 2026</span>
+              <span style="background:rgba(251,243,224,0.22); color:#FBF3E0; font-weight:800; font-size:11px; letter-spacing:0.07em; border-radius:999px; padding:4px 11px;">PHASE 1</span>
+            </div>
+            <div style="padding:20px 24px 22px;">
+              <h3 style="font-family:'Fredoka',sans-serif; font-weight:500; font-size:19px; color:#4A3521; margin:0 0 8px;">SSH durci</h3>
+              <p style="font-size:15px; line-height:1.7; color:#5D4633; margin:0;">Authentification par clé Ed25519 uniquement, connexion root totalement désactivée. En auditant la configuration, découverte d'un piège : un fichier généré par cloud-init réautorisait discrètement les mots de passe, alors que la configuration principale les interdisait. Les deux fichiers sont désormais alignés — et vérifiés.</p>
+            </div>
+          </article>
+
+          <article style="position:relative; background:#FBF3E0; border:1.5px solid #E2D2AE; border-radius:14px; box-shadow:0 16px 34px rgba(90,60,20,0.13); margin:0 0 24px; transform:rotate(-0.25deg); overflow:hidden;">
+            <span aria-hidden="true" style="position:absolute; right:14px; bottom:-8px; font-family:'Fredoka',sans-serif; font-weight:600; font-size:74px; line-height:1; color:rgba(90,60,20,0.06); z-index:-1;">3</span>
+            <div style="position:relative; display:flex; align-items:center; justify-content:space-between; gap:12px; background:#3E8E9C; padding:14px 20px 13px;">
+              <span style="position:absolute; top:7px; left:22%; width:11px; height:11px; border-radius:50%; background:#F3E7CC; box-shadow:inset 0 1.5px 2px rgba(0,0,0,0.3);"></span>
+              <span style="position:absolute; top:7px; right:22%; width:11px; height:11px; border-radius:50%; background:#F3E7CC; box-shadow:inset 0 1.5px 2px rgba(0,0,0,0.3);"></span>
+              <span style="font-family:'Fredoka',sans-serif; font-weight:600; font-size:16px; color:#FBF3E0;">06 · 07 · 2026</span>
+              <span style="background:rgba(251,243,224,0.22); color:#FBF3E0; font-weight:800; font-size:11px; letter-spacing:0.07em; border-radius:999px; padding:4px 11px;">PHASE 1</span>
+            </div>
+            <div style="padding:20px 24px 22px;">
+              <h3 style="font-family:'Fredoka',sans-serif; font-weight:500; font-size:19px; color:#4A3521; margin:0 0 8px;">Pare-feu en liste blanche</h3>
+              <p style="font-size:15px; line-height:1.7; color:#5D4633; margin:0;">ufw activé : tout est bloqué en entrée, sauf SSH. En observant les journaux en direct, le constat est immédiat : scans permanents (Telnet, ports de jeux, VPN) dès la mise en ligne. Un serveur « vide » est déjà une cible — c'est exactement ce que ce lab voulait rendre visible.</p>
+            </div>
+          </article>
+
+          <article style="position:relative; background:#FBF3E0; border:1.5px solid #E2D2AE; border-radius:14px; box-shadow:0 16px 34px rgba(90,60,20,0.13); margin:0 0 24px; transform:rotate(0.35deg); overflow:hidden;">
+            <span aria-hidden="true" style="position:absolute; right:14px; bottom:-8px; font-family:'Fredoka',sans-serif; font-weight:600; font-size:74px; line-height:1; color:rgba(90,60,20,0.06); z-index:-1;">4</span>
+            <div style="position:relative; display:flex; align-items:center; justify-content:space-between; gap:12px; background:#3E8E9C; padding:14px 20px 13px;">
+              <span style="position:absolute; top:7px; left:22%; width:11px; height:11px; border-radius:50%; background:#F3E7CC; box-shadow:inset 0 1.5px 2px rgba(0,0,0,0.3);"></span>
+              <span style="position:absolute; top:7px; right:22%; width:11px; height:11px; border-radius:50%; background:#F3E7CC; box-shadow:inset 0 1.5px 2px rgba(0,0,0,0.3);"></span>
+              <span style="font-family:'Fredoka',sans-serif; font-weight:600; font-size:16px; color:#FBF3E0; border:2.5px solid rgba(251,243,224,0.85); border-radius:50%; padding:2px 12px; transform:rotate(-3deg);">06 · 07 · 2026</span>
+              <span style="background:rgba(251,243,224,0.22); color:#FBF3E0; font-weight:800; font-size:11px; letter-spacing:0.07em; border-radius:999px; padding:4px 11px;">PHASE 1</span>
+            </div>
+            <div style="position:relative; padding:20px 24px 22px;">
+              <span aria-hidden="true" style="position:absolute; top:14px; right:18px; font-family:'Caveat',cursive; font-weight:600; font-size:19px; color:#A05540; transform:rotate(3deg);">le fameux bug !</span>
+              <h3 style="font-family:'Fredoka',sans-serif; font-weight:500; font-size:19px; color:#4A3521; margin:0 0 8px;">fail2ban, et un bug instructif</h3>
+              <p style="font-size:15px; line-height:1.7; color:#5D4633; margin:0;">Bannissement progressif configuré : plus une adresse insiste, plus elle reste dehors longtemps. L'audit a révélé un bug important : le paquet nftables manquait, si bien que fail2ban « décidait » de bannir des adresses sans jamais appliquer le blocage réseau. Corrigé après vérification. La leçon vaut pour toutes les protections : vérifier qu'elles agissent, pas seulement qu'elles tournent.</p>
+            </div>
+          </article>
+
+          <article style="position:relative; background:rgba(251,243,224,0.55); border:1.5px dashed #C9B48C; border-radius:14px; margin:0; transform:rotate(-0.2deg); overflow:hidden;">
+            <div style="position:relative; display:flex; align-items:center; justify-content:space-between; gap:12px; background:rgba(62,142,156,0.16); padding:14px 20px 13px;">
+              <span style="position:absolute; top:7px; left:22%; width:11px; height:11px; border-radius:50%; background:#F3E7CC; box-shadow:inset 0 0 0 1.5px rgba(90,60,20,0.25);"></span>
+              <span style="position:absolute; top:7px; right:22%; width:11px; height:11px; border-radius:50%; background:#F3E7CC; box-shadow:inset 0 0 0 1.5px rgba(90,60,20,0.25);"></span>
+              <span style="font-family:'Fredoka',sans-serif; font-weight:600; font-size:16px; color:#2F6F7A;">Feuillet suivant</span>
+              <span style="border:1.5px dashed #7FA9B0; color:#2F6F7A; font-weight:800; font-size:11px; letter-spacing:0.07em; border-radius:999px; padding:4px 11px;">À VENIR</span>
+            </div>
+            <div style="padding:20px 24px 22px;">
+              <p style="font-size:15px; line-height:1.7; color:#8C6A4F; margin:0;">Prochaines étapes : mises à jour automatiques et hygiène système, puis conteneurisation (Docker) et exposition HTTPS derrière Caddy.</p>
+            </div>
+          </article>
+        </section>
+      </sc-if>
+
+      <sc-if value="{{isGlossaire}}" hint-placeholder-val="{{false}}">
+        <section data-screen-label="Section — Glossaire" style="padding:clamp(18px,3.5vw,44px) clamp(12px,3vw,36px) 90px;">
+          <div style="position:relative; max-width:1080px; margin:0 auto; background:#FBF4E2; border:10px solid #2F6F7A; border-radius:16px; box-shadow:0 30px 70px rgba(15,42,47,0.5), inset 0 0 0 3px #EADCB8; padding:clamp(22px,4vw,46px) clamp(20px,4vw,52px) clamp(34px,5vw,58px);">
+            <sc-if value="{{notMobile}}" hint-placeholder-val="{{true}}">
+              <div style="position:absolute; top:16px; bottom:16px; left:50%; width:64px; transform:translateX(-50%); background:linear-gradient(90deg, rgba(90,60,20,0) 0%, rgba(90,60,20,0.15) 50%, rgba(90,60,20,0) 100%); pointer-events:none;"></div>
+              <div aria-hidden="true" style="position:absolute; top:90px; right:-33px; display:flex; flex-direction:column; gap:12px;">
+                <span style="writing-mode:vertical-rl; background:#3E8E9C; color:#EAF3F0; font-family:'Fredoka',sans-serif; font-weight:500; font-size:11.5px; letter-spacing:0.12em; padding:12px 0; width:23px; text-align:center; border-radius:0 7px 7px 0; box-shadow:3px 3px 8px rgba(15,42,47,0.35);">A – F</span>
+                <span style="writing-mode:vertical-rl; background:#C89A42; color:#3F2F10; font-family:'Fredoka',sans-serif; font-weight:500; font-size:11.5px; letter-spacing:0.12em; padding:12px 0; width:23px; text-align:center; border-radius:0 7px 7px 0; box-shadow:3px 3px 8px rgba(15,42,47,0.35);">G – P</span>
+                <span style="writing-mode:vertical-rl; background:#B5654D; color:#FBEFE4; font-family:'Fredoka',sans-serif; font-weight:500; font-size:11.5px; letter-spacing:0.12em; padding:12px 0; width:23px; text-align:center; border-radius:0 7px 7px 0; box-shadow:3px 3px 8px rgba(15,42,47,0.35);">Q – Z</span>
+              </div>
+            </sc-if>
+            <div aria-hidden="true" style="position:absolute; right:5px; bottom:5px; width:0; height:0; border-bottom:30px solid #E4D3A8; border-left:30px solid transparent; filter:drop-shadow(-3px -2px 3px rgba(90,60,20,0.18));"></div>
+
+            <div style="position:relative;">
+              <div style="display:inline-flex; align-items:center; gap:8px; background:rgba(47,111,122,0.13); color:#285E68; border-radius:999px; padding:6px 14px 6px 10px; font-weight:800; font-size:12px; letter-spacing:0.08em; text-transform:uppercase;">
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="4.5" y="3.5" width="15" height="17" rx="2"></rect><line x1="8.5" y1="3.5" x2="8.5" y2="20.5"></line></svg>
+                Le dictionnaire, grand ouvert
+              </div>
+              <div style="display:flex; align-items:baseline; gap:14px; flex-wrap:wrap; margin:14px 0 8px;">
+                <h2 style="font-family:'Fredoka',sans-serif; font-weight:600; font-size:clamp(32px,4vw,44px); color:#285E68; margin:0;">Glossaire</h2>
+                <span style="font-size:17px; font-style:italic; color:#8C6A4F;">/ɡlɔ.sɛʁ/ — n. m.</span>
+              </div>
+              <p style="font-size:16.5px; line-height:1.65; color:#6E5137; max-width:640px; margin:0 0 4px;">Les termes rencontrés dans ce projet, expliqués sans jargon. Cliquez sur un mot pour dérouler sa définition.</p>
+              <div style="height:5px; border-top:2.5px solid #2F6F7A; border-bottom:1px solid #2F6F7A; margin:16px 0 8px;"></div>
+
+              <div style="display:grid; grid-template-columns:{{glossCols}}; gap:0 clamp(56px,7vw,96px);">
+                <div>
+                  <sc-for list="{{glossCol1}}" as="g" hint-placeholder-count="7">
+                    <div style="border-bottom:1.5px dashed #D8C69D;">
+                      <button type="button" data-gi="{{g.gi}}" aria-expanded="{{g.aria}}" onClick="{{glossToggle}}" style="display:flex; align-items:baseline; gap:10px; width:100%; padding:14px 2px 13px; cursor:pointer; background:transparent; border:none; text-align:left; font-family:'Nunito',sans-serif;">
+                        <span style="position:relative; font-family:'Fredoka',sans-serif; font-weight:500; font-size:17px; color:#285E68; line-height:1.25;">
+                          <span aria-hidden="true" style="position:absolute; left:-5px; right:-5px; bottom:0; height:55%; background:rgba(217,164,65,0.45); border-radius:3px; transform:{{g.hl}}; transform-origin:left center; transition:transform 0.45s cubic-bezier(.22,1,.36,1);"></span>
+                          <span style="position:relative;">{{g.w}}</span>
+                        </span>
+                        <span style="flex:1; border-bottom:1.5px dotted #C9B891; transform:translateY(-4px);"></span>
+                        <span style="font-size:11px; font-weight:800; color:#A9885C; font-style:italic; flex:none;">{{g.pos}}</span>
+                      </button>
+                      <div style="display:grid; grid-template-rows:{{g.rows}}; transition:grid-template-rows 0.4s cubic-bezier(.22,1,.36,1);">
+                        <div style="overflow:hidden; min-height:0;">
+                          <p style="margin:0; padding:0 2px 16px; font-size:15px; line-height:1.65; color:#5D4633; opacity:{{g.op}}; transform:{{g.dy}}; transition:opacity 0.35s ease 0.06s, transform 0.4s cubic-bezier(.22,1,.36,1);">{{g.def}}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </sc-for>
+                </div>
+                <div>
+                  <sc-for list="{{glossCol2}}" as="g" hint-placeholder-count="7">
+                    <div style="border-bottom:1.5px dashed #D8C69D;">
+                      <button type="button" data-gi="{{g.gi}}" aria-expanded="{{g.aria}}" onClick="{{glossToggle}}" style="display:flex; align-items:baseline; gap:10px; width:100%; padding:14px 2px 13px; cursor:pointer; background:transparent; border:none; text-align:left; font-family:'Nunito',sans-serif;">
+                        <span style="position:relative; font-family:'Fredoka',sans-serif; font-weight:500; font-size:17px; color:#285E68; line-height:1.25;">
+                          <span aria-hidden="true" style="position:absolute; left:-5px; right:-5px; bottom:0; height:55%; background:rgba(217,164,65,0.45); border-radius:3px; transform:{{g.hl}}; transform-origin:left center; transition:transform 0.45s cubic-bezier(.22,1,.36,1);"></span>
+                          <span style="position:relative;">{{g.w}}</span>
+                        </span>
+                        <span style="flex:1; border-bottom:1.5px dotted #C9B891; transform:translateY(-4px);"></span>
+                        <span style="font-size:11px; font-weight:800; color:#A9885C; font-style:italic; flex:none;">{{g.pos}}</span>
+                      </button>
+                      <div style="display:grid; grid-template-rows:{{g.rows}}; transition:grid-template-rows 0.4s cubic-bezier(.22,1,.36,1);">
+                        <div style="overflow:hidden; min-height:0;">
+                          <p style="margin:0; padding:0 2px 16px; font-size:15px; line-height:1.65; color:#5D4633; opacity:{{g.op}}; transform:{{g.dy}}; transition:opacity 0.35s ease 0.06s, transform 0.4s cubic-bezier(.22,1,.36,1);">{{g.def}}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </sc-if>
+
+      <sc-if value="{{isContact}}" hint-placeholder-val="{{false}}">
+        <section data-screen-label="Section — Contact / CV" style="max-width:680px; margin:0 auto; padding:clamp(22px,4vw,40px) clamp(16px,4vw,36px) 90px;">
+          <div style="display:inline-flex; align-items:center; gap:8px; background:rgba(140,106,79,0.14); color:#75573C; border-radius:999px; padding:6px 14px 6px 10px; font-weight:800; font-size:12px; letter-spacing:0.08em; text-transform:uppercase;">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="6.5" width="18" height="11" rx="2"></rect><circle cx="8" cy="12" r="1.8"></circle><line x1="12" y1="10.5" x2="17.5" y2="10.5"></line></svg>
+            Le verso de la carte
+          </div>
+          <h2 style="font-family:'Fredoka',sans-serif; font-weight:600; font-size:clamp(32px,4vw,44px); color:#4A3521; margin:14px 0 10px;">Contact</h2>
+          <p style="font-size:17px; line-height:1.65; color:#6E5137; margin:0 0 34px;">Ce lab est un projet d'apprentissage mené sérieusement. Si vous recrutez — ou si vous avez simplement un avis sur l'architecture — écrivez-moi.</p>
+
+          <div style="position:relative; background:#FDF4E0; border:1.5px solid #E4D4B4; border-radius:20px; border-top-right-radius:4px; box-shadow:0 26px 60px rgba(90,60,20,0.20), inset 0 0 0 1px rgba(140,106,79,0.12); padding:clamp(26px,5vw,40px);">
+            <div aria-hidden="true" style="position:absolute; top:-1px; right:-1px; width:0; height:0; border-top:38px solid #E9D9BC; border-left:38px solid transparent; filter:drop-shadow(-3px 3px 3px rgba(90,60,20,0.15));"></div>
+            <div aria-hidden="true" style="position:absolute; top:-26px; right:52px; width:90px; height:90px; border-radius:50%; border:2.5px dashed #C2543E; color:#C2543E; background:rgba(253,244,224,0.92); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px; transform:rotate(8deg); font-family:'Fredoka',sans-serif; font-weight:600; font-size:11px; letter-spacing:0.12em; text-align:center;">
+              <span>L'ÉTABLI</span>
+              <span style="font-size:10px;">· JUIL 2026 ·</span>
+            </div>
+
+            <div style="display:flex; align-items:center; gap:16px; margin:6px 0 18px;">
+              <span style="width:52px; height:52px; border-radius:50%; background:rgba(62,142,156,0.18); border:1.5px solid #3E8E9C; flex:none; display:flex; align-items:center; justify-content:center; font-family:'Fredoka',sans-serif; font-weight:600; font-size:18px; color:#2F6F7A;">?</span>
+              <div>
+                <div style="font-family:ui-monospace,Menlo,monospace; font-size:14px; font-weight:600; color:#75573C; background:rgba(140,106,79,0.08); border:1.5px dashed #B99B76; border-radius:8px; padding:3px 10px; display:inline-block;">[TON NOM]</div>
+                <div style="font-size:14px; font-weight:700; color:#8C6A4F; margin-top:5px;">Étudiant à 42 — infrastructure, sécurité, DevOps</div>
+              </div>
+            </div>
+            <p style="font-size:15px; line-height:1.7; color:#5D4633; margin:0 0 8px;">Ce site documente mon homelab : un vrai serveur, administré et sécurisé pas à pas, avec chaque décision expliquée et chaque erreur analysée.</p>
+            <p style="font-family:ui-monospace,Menlo,monospace; font-size:13.5px; line-height:1.7; color:#75573C; background:rgba(140,106,79,0.08); border:1.5px dashed #B99B76; border-radius:10px; padding:12px 14px; margin:0 0 22px;">[2-3 LIGNES À PERSONNALISER : parcours, ce que vous recherchez — stage, alternance, poste — et votre disponibilité.]</p>
+            <div style="display:flex; flex-direction:column; gap:12px;">
+              <button type="button" style="display:flex; align-items:center; justify-content:center; gap:10px; width:100%; border:2px dashed #B99B76; background:rgba(140,106,79,0.06); color:#75573C; border-radius:999px; padding:14px 20px; font-family:ui-monospace,Menlo,monospace; font-size:14px; font-weight:700; cursor:not-allowed;">
+                [CV À AJOUTER — PDF]
+              </button>
+              <div style="font-size:12.5px; color:#A08D6E; text-align:center;">Déposez le fichier du CV dans le projet et ce bouton pointera dessus.</div>
+              <div style="display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-top:6px;">
+                <span style="font-family:ui-monospace,Menlo,monospace; font-size:12.5px; font-weight:600; color:#75573C; border:1.5px dashed #B99B76; border-radius:999px; padding:6px 13px;">[EMAIL À AJOUTER]</span>
+                <span style="font-family:ui-monospace,Menlo,monospace; font-size:12.5px; font-weight:600; color:#75573C; border:1.5px dashed #B99B76; border-radius:999px; padding:6px 13px;">[LINKEDIN À AJOUTER]</span>
+                <span style="font-family:ui-monospace,Menlo,monospace; font-size:12.5px; font-weight:600; color:#75573C; border:1.5px dashed #B99B76; border-radius:999px; padding:6px 13px;">[GITHUB À AJOUTER]</span>
+              </div>
+            </div>
+            <div style="display:flex; justify-content:flex-end; margin-top:20px;">
+              <div style="font-family:'Caveat',cursive; font-weight:600; font-size:23px; color:#8C6A4F; transform:rotate(-2deg);">à bientôt sur le serveur —</div>
+            </div>
+          </div>
+          <p style="font-size:13px; line-height:1.6; color:#A08D6E; text-align:center; margin:18px 0 0;">Les sections techniques de ce site reflètent l'état réel du projet à juillet 2026 — rien n'y est présenté comme fait s'il ne l'est pas.</p>
+        </section>
+      </sc-if>
+
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{
+  &quot;showLabels&quot;: {&quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: false, &quot;tsType&quot;: &quot;boolean&quot;, &quot;section&quot;: &quot;Établi&quot;},
+  &quot;parallax&quot;: {&quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: true, &quot;tsType&quot;: &quot;boolean&quot;, &quot;section&quot;: &quot;Établi&quot;},
+  &quot;wood&quot;: {&quot;editor&quot;: &quot;color&quot;, &quot;default&quot;: &quot;#D08C42&quot;, &quot;options&quot;: [&quot;#D08C42&quot;, &quot;#B4762F&quot;, &quot;#DCAB6B&quot;, &quot;#B85F3F&quot;], &quot;tsType&quot;: &quot;string&quot;, &quot;section&quot;: &quot;Établi&quot;},
+  &quot;mobileChrome&quot;: {&quot;editor&quot;: &quot;enum&quot;, &quot;default&quot;: &quot;Compact&quot;, &quot;options&quot;: [&quot;Compact&quot;, &quot;Complet&quot;, &quot;Immersif&quot;], &quot;tsType&quot;: &quot;string&quot;, &quot;section&quot;: &quot;Mobile&quot;}
+}">
+const SECTION_IDS = ['homelab', 'projet', 'architecture', 'stack', 'monitoring', 'journal', 'glossaire', 'contact'];
+
+const SECTION_META = {
+  homelab:      { label: 'Le homelab',   color: '#3E8E9C', desc: 'Le matériel et les services auto-hébergés qui tournent chez moi, 24 h/24.' },
+  projet:       { label: 'Le projet',    color: '#E2725B', desc: 'Pourquoi ce homelab : mes objectifs, ma démarche et ce que j\'y apprends.' },
+  architecture: { label: 'Architecture', color: '#7F9C6B', desc: 'Le schéma complet : du routeur aux conteneurs, réseaux et flux.' },
+  stack:        { label: 'La stack',     color: '#E8703A', desc: 'Les technologies et outils qui font tourner l\'ensemble.' },
+  monitoring:   { label: 'Monitoring',   color: '#C89A42', desc: 'Métriques, alertes et tableaux de bord de supervision.' },
+  journal:      { label: 'Journal',      color: '#B5654D', desc: 'Mon carnet de bord du homelab, jour après jour.' },
+  glossaire:    { label: 'Glossaire',    color: '#2F6F7A', desc: 'Les termes clés du homelab, expliqués simplement.' },
+  contact:      { label: 'Contact / CV', color: '#8C6A4F', desc: 'Me contacter et télécharger mon CV.' }
+};
+
+const VIEW_BG = {
+  homelab: '#DCE9E2',
+  projet: '#FDF7E7',
+  architecture: '#F1E4BE',
+  stack: '#8A3D16',
+  monitoring: '#FBF1DC',
+  journal: '#F3E7CC',
+  glossaire: '#244F58',
+  contact: '#F0E4CB'
+};
+
+const GLOSS = [
+  { w: 'VPS', pos: 'n. m.', def: 'Un « serveur privé virtuel » : une part d\'un grand serveur, louée dans un centre de données. Comme un appartement dans un immeuble — on n\'est pas propriétaire du bâtiment, mais on est chez soi, avec sa propre porte d\'entrée.' },
+  { w: 'SSH', pos: 'n. m.', def: 'Le moyen de se connecter à un serveur à distance pour l\'administrer, par une liaison chiffrée. C\'est la porte d\'entrée technique de la machine — celle que ce projet a verrouillée en premier.' },
+  { w: 'Clé publique / clé privée', pos: 'n. f.', def: 'Un cadenas et sa clé. Le cadenas (la clé publique) peut être posé sur le serveur au vu de tous ; seule la clé privée, gardée sur son ordinateur, peut l\'ouvrir. Sur ce serveur, c\'est le seul mode de connexion accepté — les mots de passe sont refusés.' },
+  { w: 'Root', pos: 'n. m.', def: 'Le compte qui a tous les droits sur la machine. Puissant, donc dangereux : une erreur ou un vol de ce compte, et tout y passe. Ici, root ne peut plus se connecter directement — il faut entrer par un compte normal, puis élever ses droits ponctuellement.' },
+  { w: 'Sudo', pos: 'v.', def: 'Demander le passe-partout ponctuellement, pour une commande précise, plutôt que de le porter sur soi en permanence. Chaque usage est tracé dans les journaux.' },
+  { w: 'Pare-feu', pos: 'n. m.', def: 'Le vigile à l\'entrée du serveur : il filtre les connexions porte par porte, selon des règles précises. Ici, la règle de base est stricte — tout est fermé, sauf exception explicitement autorisée.' },
+  { w: 'Port', pos: 'n. m.', def: 'Les portes numérotées d\'un serveur : chaque service écoute derrière la sienne (le web derrière la 443, SSH derrière la 22…). Moins il y a de portes ouvertes, moins il y a de chemins d\'attaque possibles.' },
+  { w: '« Deny by default »', pos: 'loc.', def: 'Refuser par défaut : on n\'ouvre que ce qui est explicitement autorisé, au lieu de fermer ce qui est explicitement interdit. La liste d\'invités plutôt que la liste noire — c\'est la politique du pare-feu de ce serveur.' },
+  { w: 'fail2ban', pos: 'n. m.', def: 'Un logiciel qui lit les journaux du serveur et repère les comportements insistants — par exemple des dizaines de mots de passe essayés à la suite. Au bout de quelques échecs, l\'adresse est mise à la porte automatiquement.' },
+  { w: 'Bannissement', pos: 'n. m.', def: 'L\'exclusion temporaire d\'une adresse qui a trop insisté. Sur ce serveur, le bannissement est progressif : à chaque récidive, la porte reste fermée plus longtemps.' },
+  { w: 'Infrastructure as Code', pos: 'loc.', def: 'Décrire son infrastructure dans des fichiers texte — versionnés, relisibles, rejouables — plutôt que de tout configurer à la main. La recette écrite plutôt que le plat improvisé : prévu ici avec Ansible et Terraform.' },
+  { w: 'Reverse proxy', pos: 'n. m.', def: 'La réception d\'un immeuble de bureaux : une seule entrée publique, et un accueil qui oriente chaque visiteur vers le bon service à l\'intérieur. Prévu ici avec Caddy, qui gérera aussi les certificats HTTPS.' },
+  { w: 'CI/CD', pos: 'sigle', def: 'L\'enchaînement automatique « tester, puis livrer » : à chaque modification du code, des vérifications s\'exécutent et la mise en ligne se fait sans intervention manuelle. Prévu ici avec GitHub Actions.' },
+  { w: 'Conteneur (Docker)', pos: 'n. m.', def: 'Une boîte standardisée qui embarque une application et tout ce qu\'il lui faut pour fonctionner. Comme les conteneurs de fret : peu importe le contenu, ils se transportent et s\'empilent tous de la même façon.' }
+];
+
+const JOURNAL_DAYS = {
+  6: { label: 'Lundi 6 juillet 2026', phase: 'PHASE 1', items: [
+    { t: 'Premier accès au serveur', s: 'Réception du VPS OVH sous Debian 13. Connexion root impossible : OVH livre la machine avec un utilisateur « debian » — leçon nº 1, lire la doc du fournisseur avant de soupçonner sa propre config.' },
+    { t: 'SSH durci', s: 'Clés Ed25519 uniquement, root désactivé. Un fichier généré par cloud-init réautorisait discrètement les mots de passe : corrigé, puis vérifié.' },
+    { t: 'Pare-feu en liste blanche', s: 'ufw activé, tout bloqué en entrée sauf SSH. Les journaux montrent des scans permanents dès la mise en ligne.' },
+    { t: 'fail2ban, et un bug instructif', s: 'Bannissement progressif en place. Le paquet nftables manquait : fail2ban « bannissait » sans rien bloquer réellement — corrigé.' }
+  ]},
+  7: { label: 'Mardi 7 juillet 2026', phase: 'L\'ÉTABLI', items: [
+    { t: 'Construction de l\'établi', s: 'Mise en chantier de cette page-atelier : la scène 3D, les huit sections et ce journal de bord.' }
+  ]}
+};
+
+class Component extends DCLogic {
+  state = { isMobile: false, view: null, glossOpen: {}, selDay: 6, previewId: null, tiltOn: false, tiltDenied: false, sceneFailed: false };
+
+  componentDidMount() {
+    this._mq = window.matchMedia('(max-width: 860px)');
+    this._onMq = () => this.setState({ isMobile: this._mq.matches });
+    this._mq.addEventListener('change', this._onMq);
+    this._onMq();
+
+    this._onPreview = (e) => this.setState({ previewId: e.detail.id || null });
+    window.addEventListener('etabli:preview', this._onPreview);
+
+    this._onFail = () => this.setState({ sceneFailed: true, previewId: null });
+    window.addEventListener('etabli:failed', this._onFail);
+
+    this._onNav = (e) => this._navigate(e.detail.id);
+    window.addEventListener('etabli:navigate', this._onNav);
+
+    this._onFocused = (e) => {
+      if (e.detail.id !== this._pending) return;
+      this._pending = null;
+      this._openView(e.detail.id, 'push');
+    };
+    window.addEventListener('etabli:focused', this._onFocused);
+
+    this._onPop = () => this._syncFromHash();
+    window.addEventListener('popstate', this._onPop);
+    window.addEventListener('hashchange', this._onPop);
+
+    this._onKey = (e) => { if (e.key === 'Escape' && this.state.view) this._close(); };
+    window.addEventListener('keydown', this._onKey);
+
+    // Arrivée directe sur une ancre (#architecture, …)
+    const h = (location.hash || '').replace('#', '');
+    if (SECTION_IDS.includes(h)) {
+      this.setState({ view: h });
+      this._pauseSoon();
+    }
+  }
+
+  componentWillUnmount() {
+    if (this._mq) this._mq.removeEventListener('change', this._onMq);
+    window.removeEventListener('etabli:preview', this._onPreview);
+    window.removeEventListener('etabli:failed', this._onFail);
+    window.removeEventListener('etabli:navigate', this._onNav);
+    window.removeEventListener('etabli:focused', this._onFocused);
+    window.removeEventListener('popstate', this._onPop);
+    window.removeEventListener('hashchange', this._onPop);
+    window.removeEventListener('keydown', this._onKey);
+    clearTimeout(this._pt);
+    clearTimeout(this._fb);
+  }
+
+  _scene() { return document.querySelector('etabli-scene'); }
+
+  _pauseSoon() {
+    clearTimeout(this._pt);
+    this._pt = setTimeout(() => {
+      const s = this._scene();
+      if (this.state.view && s && s.pause) s.pause();
+    }, 1600);
+  }
+
+  _navigate(id) {
+    if (!SECTION_IDS.includes(id)) return;
+    if (this.state.sceneFailed) { this._openView(id, 'push'); return; }
+    if (this.state.view) {
+      // Déjà dans une section : bascule directe via la mini-barre.
+      this._openView(id, 'replace');
+      return;
+    }
+    const s = this._scene();
+    if (s && s.focusSection) {
+      this._pending = id;
+      s.focusSection(id);
+      // Garde-fou si l'animation n'aboutit pas.
+      clearTimeout(this._fb);
+      this._fb = setTimeout(() => {
+        if (this._pending === id) { this._pending = null; this._openView(id, 'push'); }
+      }, 2000);
+    } else {
+      this._openView(id, 'push');
+    }
+  }
+
+  _openView(id, mode) {
+    clearTimeout(this._fb);
+    this.setState({ view: id, previewId: null });
+    if (mode === 'push') history.pushState(null, '', '#' + id);
+    else history.replaceState(null, '', '#' + id);
+    this._pauseSoon();
+  }
+
+  _close(mode) {
+    clearTimeout(this._pt);
+    this.setState({ view: null, previewId: null });
+    if (mode !== 'silent') history.replaceState(null, '', location.pathname + location.search);
+    const s = this._scene();
+    if (s && s.resume) s.resume();
+    if (s && s.resetView) s.resetView();
+  }
+
+  _syncFromHash() {
+    const h = (location.hash || '').replace('#', '');
+    if (SECTION_IDS.includes(h)) {
+      if (this.state.view !== h) { this.setState({ view: h }); this._pauseSoon(); }
+    } else if (this.state.view) {
+      this._close('silent');
+    }
+  }
+
+  _glossItems(list, offset) {
+    return list.map((g, j) => {
+      const i = offset + j;
+      const o = !!this.state.glossOpen[i];
+      return {
+        w: g.w, pos: g.pos, def: g.def,
+        gi: String(i),
+        aria: o ? 'true' : 'false',
+        rows: o ? '1fr' : '0fr',
+        op: o ? 1 : 0,
+        hl: o ? 'scaleX(1)' : 'scaleX(0)',
+        dy: o ? 'translateY(0px)' : 'translateY(-8px)'
+      };
+    });
+  }
+
+  _calCells() {
+    const cells = [];
+    const lead = (new Date(2026, 6, 1).getDay() + 6) % 7; // grille qui commence le lundi
+    const now = new Date();
+    const today = (now.getFullYear() === 2026 && now.getMonth() === 6) ? now.getDate() : -1;
+    for (let i = 0; i < lead; i++) {
+      cells.push({ day: '', num: '', off: true, bg: 'transparent', fg: 'transparent', dotBg: 'transparent', sh: 'none', cur: 'default', fw: '600' });
+    }
+    for (let d = 1; d <= 31; d++) {
+      const has = !!JOURNAL_DAYS[d];
+      const sel = has && this.state.selDay === d;
+      let sh = sel ? '0 4px 10px rgba(160,85,64,0.4)' : 'none';
+      if (d === today) sh = (sh === 'none' ? '' : sh + ', ') + 'inset 0 0 0 1.8px #3E8E9C';
+      cells.push({
+        day: String(d), num: String(d), off: !has,
+        bg: sel ? '#B5654D' : (has ? 'rgba(181,101,77,0.16)' : 'transparent'),
+        fg: sel ? '#FBF3E0' : (has ? '#A05540' : '#B9A382'),
+        dotBg: has ? (sel ? '#FBF3E0' : '#B5654D') : 'transparent',
+        sh: sh, cur: has ? 'pointer' : 'default', fw: has ? '800' : '600'
+      });
+    }
+    return cells;
+  }
+
+  renderVals() {
+    const p = this.props;
+    const v = this.state.view;
+    const selEntry = JOURNAL_DAYS[this.state.selDay] || null;
+    return {
+      isMobile: this.state.isMobile,
+      notMobile: !this.state.isMobile,
+      glossCols: this.state.isMobile ? '1fr' : '1fr 1fr',
+      glossCol1: this._glossItems(GLOSS.slice(0, 7), 0),
+      glossCol2: this._glossItems(GLOSS.slice(7), 7),
+      glossToggle: (e) => {
+        const i = e.currentTarget.dataset.gi;
+        this.setState(s => ({ glossOpen: { ...s.glossOpen, [i]: !s.glossOpen[i] } }));
+      },
+      showLabelsStr: String(p.showLabels ?? false),
+      parallaxStr: String(p.parallax ?? true),
+      woodStr: String(p.wood ?? '#D08C42'),
+      touchPreviewStr: String(this.state.isMobile),
+      showKicker: !this.state.isMobile || (p.mobileChrome ?? 'Compact') !== 'Immersif',
+      showSubtitle: !this.state.isMobile || (p.mobileChrome ?? 'Compact') === 'Complet',
+      mobileBarShow: this.state.isMobile && !v && !this.state.sceneFailed,
+      sceneFailed: this.state.sceneFailed,
+      fallbackItems: SECTION_IDS.map((id) => ({ id: id, label: SECTION_META[id].label, color: SECTION_META[id].color })),
+      previewActive: !!(this.state.previewId && SECTION_META[this.state.previewId]),
+      noPreview: !(this.state.previewId && SECTION_META[this.state.previewId]),
+      previewLabel: SECTION_META[this.state.previewId] ? SECTION_META[this.state.previewId].label : '',
+      previewDesc: SECTION_META[this.state.previewId] ? SECTION_META[this.state.previewId].desc : '',
+      previewColor: SECTION_META[this.state.previewId] ? SECTION_META[this.state.previewId].color : '#8C6A4F',
+      tiltOn: this.state.tiltOn,
+      tiltOff: !this.state.tiltOn,
+      tiltHint: this.state.tiltDenied
+        ? 'Mouvement non autorisé sur cet appareil'
+        : (this.state.tiltOn ? 'Inclinez le téléphone · touchez un objet' : "Touchez un objet pour l'explorer"),
+      toggleTilt: async () => {
+        const s = this._scene();
+        if (!s) return;
+        if (this.state.tiltOn) { if (s.disableTilt) s.disableTilt(); this.setState({ tiltOn: false }); return; }
+        let ok = false;
+        try { ok = s.enableTilt ? await s.enableTilt() : false; } catch (e) { ok = false; }
+        this.setState({ tiltOn: !!ok, tiltDenied: !ok });
+      },
+      openPreview: () => { const id = this.state.previewId; if (id) this._navigate(id); },
+      closePreview: () => {
+        this.setState({ previewId: null });
+        const s = this._scene();
+        if (s && s._clearPreview) s._clearPreview();
+      },
+      inSection: !!v,
+      viewBg: VIEW_BG[v] || '#F2EAD9',
+      isHomelab: v === 'homelab',
+      isProjet: v === 'projet',
+      isArchitecture: v === 'architecture',
+      isStack: v === 'stack',
+      isMonitoring: v === 'monitoring',
+      isJournal: v === 'journal',
+      isGlossaire: v === 'glossaire',
+      isContact: v === 'contact',
+      calCells: this._calCells(),
+      pickDay: (e) => {
+        const d = +e.currentTarget.dataset.day;
+        if (!JOURNAL_DAYS[d]) return;
+        this.setState(s => ({ selDay: s.selDay === d ? null : d }));
+      },
+      dayOpen: !!selEntry,
+      dayLabel: selEntry ? selEntry.label : '',
+      dayPhase: selEntry ? selEntry.phase : '',
+      dayItems: selEntry ? selEntry.items : [],
+      go: (e) => {
+        const b = e.currentTarget;
+        window.dispatchEvent(new CustomEvent('etabli:navigate', { detail: { id: b.dataset.id, label: b.dataset.label || '' } }));
+      },
+      retour: () => this._close()
+    };
+  }
+}
+</script>
+</body>
+</html>
