@@ -84,13 +84,13 @@
           <sc-if value="{{tiltOn}}" hint-placeholder-val="{{false}}">
             <button type="button" onClick="{{toggleTilt}}" aria-pressed="true" style="display:inline-flex; align-items:center; gap:7px; flex:none; min-height:40px; background:#3E8E9C; color:#F7EDDC; border:1.5px solid #3E8E9C; border-radius:999px; padding:0 15px; font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; cursor:pointer;">
               <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.5"></circle><path d="M12 2.5v3"></path><path d="M12 18.5v3"></path><path d="M2.5 12h3"></path><path d="M18.5 12h3"></path></svg>
-              Mouvement activ&eacute;
+              Activ&eacute;
             </button>
           </sc-if>
           <sc-if value="{{tiltOff}}" hint-placeholder-val="{{true}}">
             <button type="button" onClick="{{toggleTilt}}" aria-pressed="false" style="display:inline-flex; align-items:center; gap:7px; flex:none; min-height:40px; background:rgba(255,252,244,0.9); color:#6E5232; border:1.5px solid #DCC9A3; border-radius:999px; padding:0 15px; font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; cursor:pointer;" style-hover="border-color:#C7AE82;">
               <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.5"></circle><path d="M12 2.5v3"></path><path d="M12 18.5v3"></path><path d="M2.5 12h3"></path><path d="M18.5 12h3"></path></svg>
-              Activer le mouvement
+              Incliner
             </button>
           </sc-if>
         </div>
@@ -493,20 +493,24 @@
           </div>
 
           <div style="position:relative; max-width:940px; margin:0 auto; padding:0 clamp(18px,4vw,40px);">
-            <div style="display:inline-flex; align-items:center; gap:8px; background:rgba(255,225,196,0.14); color:#FFD9B4; border:1.5px solid rgba(255,214,178,0.3); border-radius:999px; padding:6px 14px 6px 10px; font-weight:800; font-size:12px; letter-spacing:0.08em; text-transform:uppercase;">
-              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="3.5" y="8.5" width="17" height="11" rx="2"></rect><path d="M9 8.5 V7 a3 3 0 0 1 6 0 v1.5"></path></svg>
-              Dans la boîte à outils
-            </div>
-            <div style="display:flex; align-items:flex-end; justify-content:space-between; gap:16px; flex-wrap:wrap;">
-              <div style="flex:1 1 320px; min-width:0;">
-                <h2 style="font-family:'Fredoka',sans-serif; font-weight:600; font-size:clamp(32px,4vw,44px); color:#FBEEDC; margin:14px 0 10px; text-shadow:0 2px 8px rgba(58,28,11,0.4);">La stack</h2>
-                <p style="font-size:17px; line-height:1.65; color:#F0CFAD; max-width:640px; margin:0 0 8px;">Des briques simples et standard, celles que l'on retrouve en entreprise. Le couvercle est ouvert : vous regardez l'intérieur de la caisse, plateau par plateau — chaque plateau range un étage du projet.</p>
-              </div>
-              <div style="position:relative; flex:none; margin:0 6px 10px 0;">
-                <span aria-hidden="true" style="position:absolute; left:-14px; top:12px; width:16px; height:1.5px; background:rgba(255,220,190,0.5); transform:rotate(-38deg);"></span>
-                <div style="position:relative; background:#EBD3A7; border:1.5px solid rgba(122,88,46,0.42); border-radius:9px; padding:7px 14px 8px 26px; font-family:'Fredoka',sans-serif; font-weight:500; font-size:13.5px; color:#53381F; transform:rotate(2.5deg); box-shadow:0 5px 12px rgba(40,18,6,0.4);">
-                  <span style="position:absolute; left:9px; top:50%; transform:translateY(-50%); width:7px; height:7px; border-radius:50%; background:#7A3A18; box-shadow:inset 0 0 0 1.5px #A8834F;"></span>
-                  7 plateaux — inventaire à jour
+            <div style="position:relative; background:linear-gradient(150deg,#E7EBEE 0%,#CBD2D8 46%,#B4BCC4 100%); border:1.5px solid #9AA3AB; border-radius:14px; padding:clamp(20px,3.5vw,30px) clamp(20px,4vw,34px) clamp(20px,3.2vw,26px); box-shadow:0 16px 34px rgba(24,10,3,0.45), inset 0 1.5px 0 rgba(255,255,255,0.85), inset 0 -2px 5px rgba(90,100,110,0.28); overflow:hidden;">
+              <div aria-hidden="true" style="position:absolute; inset:0; pointer-events:none; opacity:0.5; background:repeating-linear-gradient(96deg, rgba(255,255,255,0.35) 0 1px, transparent 1px 4px);"></div>
+              <span aria-hidden="true" style="position:absolute; top:9px; left:11px; width:9px; height:9px; border-radius:50%; background:radial-gradient(circle at 35% 30%,#F2F5F7,#8E979F); box-shadow:inset 0 0 0 1px rgba(90,100,110,0.5), 0 1px 1px rgba(0,0,0,0.35);"></span>
+              <span aria-hidden="true" style="position:absolute; top:9px; right:11px; width:9px; height:9px; border-radius:50%; background:radial-gradient(circle at 35% 30%,#F2F5F7,#8E979F); box-shadow:inset 0 0 0 1px rgba(90,100,110,0.5), 0 1px 1px rgba(0,0,0,0.35);"></span>
+              <span aria-hidden="true" style="position:absolute; bottom:9px; left:11px; width:9px; height:9px; border-radius:50%; background:radial-gradient(circle at 35% 30%,#F2F5F7,#8E979F); box-shadow:inset 0 0 0 1px rgba(90,100,110,0.5), 0 1px 1px rgba(0,0,0,0.35);"></span>
+              <span aria-hidden="true" style="position:absolute; bottom:9px; right:11px; width:9px; height:9px; border-radius:50%; background:radial-gradient(circle at 35% 30%,#F2F5F7,#8E979F); box-shadow:inset 0 0 0 1px rgba(90,100,110,0.5), 0 1px 1px rgba(0,0,0,0.35);"></span>
+              <div style="position:relative; display:flex; align-items:flex-start; justify-content:space-between; gap:14px; flex-wrap:wrap;">
+                <div style="min-width:0; flex:1 1 300px;">
+                  <div style="display:inline-flex; align-items:center; gap:7px; background:#E8703A; color:#3A1C0B; border:1.5px solid #B85417; border-radius:6px; padding:5px 11px; font-weight:800; font-size:11.5px; letter-spacing:0.09em; text-transform:uppercase; box-shadow:inset 0 1px 0 rgba(255,255,255,0.4), 0 1px 2px rgba(40,18,6,0.35);">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="3.5" y="8.5" width="17" height="11" rx="2"></rect><path d="M9 8.5 V7 a3 3 0 0 1 6 0 v1.5"></path></svg>
+                    Dans la boîte à outils
+                  </div>
+                  <h2 style="font-family:'Fredoka',sans-serif; font-weight:600; font-size:clamp(30px,4.4vw,46px); color:#2B3237; margin:13px 0 9px; letter-spacing:0.01em; text-shadow:0 1px 0 rgba(255,255,255,0.55);">La stack</h2>
+                  <p style="font-size:clamp(15px,1.6vw,17px); line-height:1.6; color:#3E464C; font-weight:600; max-width:640px; margin:0;">Des briques simples et standard, celles que l'on retrouve en entreprise. Le couvercle est ouvert : vous regardez l'intérieur de la caisse, plateau par plateau — chaque plateau range un étage du projet.</p>
+                </div>
+                <div style="flex:none; display:inline-flex; align-items:center; gap:8px; background:#2E353B; color:#EBEFF2; border-radius:8px; padding:8px 13px; font-family:ui-monospace,Menlo,monospace; font-size:12px; font-weight:700; letter-spacing:0.05em; box-shadow:inset 0 1px 0 rgba(255,255,255,0.12), 0 2px 5px rgba(24,10,3,0.4);">
+                  <span style="width:8px; height:8px; border-radius:50%; background:#7F9C6B; box-shadow:0 0 6px rgba(127,156,107,0.9);"></span>
+                  7 PLATEAUX · À JOUR
                 </div>
               </div>
             </div>
@@ -1190,13 +1194,17 @@ class Component extends DCLogic {
       tiltHint: this.state.tiltDenied
         ? 'Mouvement non autorisé sur cet appareil'
         : (this.state.tiltOn ? 'Inclinez le téléphone · touchez un objet' : "Touchez un objet pour l'explorer"),
-      toggleTilt: async () => {
+      toggleTilt: () => {
         const s = this._scene();
         if (!s) return;
-        if (this.state.tiltOn) { if (s.disableTilt) s.disableTilt(); this.setState({ tiltOn: false }); return; }
-        let ok = false;
-        try { ok = s.enableTilt ? await s.enableTilt() : false; } catch (e) { ok = false; }
-        this.setState({ tiltOn: !!ok, tiltDenied: !ok });
+        if (this.state.tiltOn) { if (s.disableTilt) s.disableTilt(); this.setState({ tiltOn: false, tiltDenied: false }); return; }
+        // requestPermission (iOS Safari) doit être appelé SYNCHRONEMENT dans le geste : on n'attend rien avant.
+        let p;
+        try { p = s.enableTilt ? s.enableTilt() : Promise.resolve(false); }
+        catch (e) { p = Promise.resolve(false); }
+        Promise.resolve(p)
+          .then((ok) => this.setState({ tiltOn: !!ok, tiltDenied: !ok }))
+          .catch(() => this.setState({ tiltOn: false, tiltDenied: true }));
       },
       openPreview: () => { const id = this.state.previewId; if (id) this._navigate(id); },
       closePreview: () => {
