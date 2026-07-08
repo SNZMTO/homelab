@@ -48,10 +48,12 @@
     sage: 0x8CA36F,
     mustard: 0xD9A441,
     brass: 0xC08F3C,
-    copper: 0xB1592E,
-    copperDark: 0x89401F,
+    copper: 0x9E4C24,
+    copperDark: 0x763413,
     noir: 0x272320,
     noirLite: 0x3B3530,
+    walnut: 0x6A3F1E,
+    walnutDark: 0x4E2F16,
     steel: 0x3E7C86,
     steelDark: 0x2C5E67,
     darkwood: 0x8C5A2F,
@@ -279,14 +281,14 @@
       /* --- loupe --- */
       function buildLoupe() {
         var g = new T.Group();
-        var ring = mesh(new T.TorusGeometry(0.24, 0.055, 8, 22), mat(P.steel, { flatShading: false }), 0, 0.062, 0);
+        var ring = mesh(new T.TorusGeometry(0.24, 0.055, 8, 22), mat(P.brass, { flatShading: false }), 0, 0.062, 0);
         ring.rotation.x = Math.PI / 2;
         g.add(ring);
         g.add(mesh(new T.CylinderGeometry(0.2, 0.2, 0.03, 22), mat(P.glass, { transparent: true, opacity: 0.85, flatShading: false }), 0, 0.062, 0));
-        var collar = mesh(new T.CylinderGeometry(0.06, 0.06, 0.1, 8), mat(P.steelDark), 0.33, 0.058, 0);
+        var collar = mesh(new T.CylinderGeometry(0.06, 0.06, 0.1, 8), mat(P.walnutDark), 0.33, 0.058, 0);
         collar.rotation.z = Math.PI / 2;
         g.add(collar);
-        var handle = mesh(new T.CapsuleGeometry(0.048, 0.34, 3, 8), mat(P.steelDark), 0.56, 0.055, 0);
+        var handle = mesh(new T.CapsuleGeometry(0.048, 0.34, 3, 8), mat(P.walnut), 0.56, 0.055, 0);
         handle.rotation.z = Math.PI / 2;
         g.add(handle);
         return { g: g, top: 0.14, hit: [1.15, 0.42, 0.72], hc: [0.22, 0.16, 0] };
