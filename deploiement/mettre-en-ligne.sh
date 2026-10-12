@@ -37,7 +37,6 @@ if ! systemctl start mateosan-publier.service; then
   journalctl -u mateosan-publier.service -n 20 -o cat --no-pager
   exit 1
 fi
-journalctl -u mateosan-publier.service -n 1 -o cat --no-pager
 systemctl enable --now mateosan-publier.timer
 
 printf '== Le conteneur\n'
@@ -45,11 +44,13 @@ docker build -q -t mateosan-site "$ICI" >/dev/null
 docker compose --project-directory "$CIBLE" up -d --wait --force-recreate --remove-orphans
 
 printf '== Vérifications\n'
-CODE="$(curl -s -o /dev/null -w '%{http_code}' --max-time 15 "https://$DOMAINE/" || true)"
-if [ "$CODE" = 200 ]; then
-  printf 'En ligne : https://%s (version %s)\n' "$DOMAINE" "$(readlink "$CIBLE/publie/actuel" | sed 's#versions/##')"
+VERSION="$(readlink "$CIBLE/publie/actuel" | sed 's#versions/##')"
+# Les liens vers les pages légales : seul le site les a, pas une page d'attente du frontal.
+if curl -fsS --max-time 15 "https://$DOMAINE/" 2>/dev/null | grep -q 'class="liens-legaux"'; then
+  printf 'En ligne : https://%s (version %s)\n' "$DOMAINE" "$VERSION"
 else
-  echo "Le site tourne, mais https://$DOMAINE répond « $CODE » : le frontal connaît-il le réseau « mateosan » ? (dépôt « vps »,"
-  echo "sudo sh frontal/mettre-en-ligne.sh). Ce que dit le site : sudo docker compose --project-directory $CIBLE logs --tail 50"
+  echo "Le site tourne (version $VERSION), mais https://$DOMAINE ne le sert pas : le frontal passe-t-il mateosan.fr au réseau"
+  echo "« mateosan » ? (dépôt « vps », sudo sh frontal/mettre-en-ligne.sh). Ce que dit le site :"
+  echo "sudo docker compose --project-directory $CIBLE logs --tail 50"
   exit 1
 fi
