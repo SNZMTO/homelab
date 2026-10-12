@@ -1,0 +1,42 @@
+# mateosan.fr en ligne, sur le VPS : un conteneur Caddy qui sert le site, et n'ouvre aucun port. Le frontal du VPS (dépôt « vps »)
+# tient le HTTPS de mateosan.fr et lui passe tout par le réseau « mateosan », à l'adresse « mateosan:8080 ». Il n'a aucun droit :
+# pas root, pas de capacités, rien à gagner en route, un système de fichiers en lecture seule, le site en lecture seule.
+#
+# Posé dans /srv/mateosan par deploiement/mettre-en-ligne.sh. Le site lui-même est dans /srv/mateosan/publie, que publier.sh
+# remplit à chaque commit (sans relancer le conteneur).
+
+name: mateosan
+
+services:
+  site:
+    # Le Caddy du frontal, sans capacité et en tant que nobody (deploiement/Dockerfile).
+    image: mateosan-site
+    pull_policy: never
+    restart: unless-stopped
+    environment:
+      XDG_CONFIG_HOME: /tmp
+      XDG_DATA_HOME: /tmp
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./publie:/srv/publie:ro
+    read_only: true
+    tmpfs:
+      - /tmp:size=16m
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    pids_limit: 64
+    mem_limit: 128m
+    healthcheck:
+      test: ['CMD', 'wget', '-q', '-O', '/dev/null', 'http://127.0.0.1:8080/']
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+    networks:
+      mateosan:
+        aliases: [mateosan]
+
+# Le réseau du site, que le frontal rejoint.
+networks:
+  mateosan:
+    name: mateosan
