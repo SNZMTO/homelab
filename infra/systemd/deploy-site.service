@@ -1,0 +1,8 @@
+[Unit]
+Description=Deploiement du site mateosan depuis GitHub
+After=network-online.target
+
+[Service]
+Type=oneshot
+User=deploy
+ExecStart=/home/deploy/deploy.sh
