@@ -1,0 +1,34 @@
+# Le serveur de mateosan.fr, dans son conteneur : il sert la version en ligne du site (/srv/publie/actuel, que publier.sh fait
+# pointer sur la dernière version construite), sans HTTPS ni journal des visites. Le frontal du VPS (dépôt « vps ») tient le
+# HTTPS, la compression et les en-têtes de sécurité communs ; ici, la politique de sécurité du contenu (CSP), propre au site.
+{
+	admin off
+	auto_https off
+	persist_config off
+	# Rien que les erreurs : aucune visite n'est écrite (voir la page « Confidentialité »).
+	log {
+		level ERROR
+	}
+}
+
+:8080 {
+	root * /srv/publie/actuel
+
+	# Tout vient de mateosan.fr. Le moteur des pages de Claude Design compile ses composants dans la page (unsafe-eval) et y
+	# pose ses styles (unsafe-inline) ; aucun script n'y est écrit en ligne.
+	header Content-Security-Policy "default-src 'none'; script-src 'self' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data: blob:; connect-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'"
+
+	# Les dépendances ne changent jamais à une même adresse (la version est dans le chemin) ; le reste se revérifie à chaque fois.
+	@dependances path /dependances/*
+	@pages not path /dependances/*
+	header @dependances Cache-Control "public, max-age=31536000, immutable"
+	header @pages Cache-Control "no-cache"
+
+	try_files {path} {path}.html
+	file_server
+
+	handle_errors {
+		rewrite * /404.html
+		file_server
+	}
+}
