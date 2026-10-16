@@ -1,145 +1,181 @@
-# 🏠 Homelab — Building Secure Infrastructure from Scratch
+# 🏠 Homelab : un vrai serveur, durci pas à pas
 
-> A hands-on infrastructure/security/DevOps project built on a real, internet-facing VPS — not an isolated local VM. Every phase is documented with the decisions made, the mistakes hit along the way, and why they were fixed the way they were.
+Le journal d'un VPS exposé à internet, que j'administre moi-même : chaque étape notée avec ses décisions, ses commandes, ses
+pièges et ses raisons. Le serveur héberge aujourd'hui mon site, [mateosan.fr](https://mateosan.fr), mon blind test,
+[honear.fr](https://honear.fr), et son serveur MCP, [mcp.honear.fr](https://mcp.honear.fr).
 
-## 🎯 Project Goal
+> **In English.** The log of a real, internet-facing VPS that I run myself (OVH, Debian 13), hardened step by step: key-only
+> SSH, a deny-by-default firewall, fail2ban, automatic updates, Docker containers behind a shared Caddy front with automatic
+> HTTPS, and continuous deployment by pull, with no inbound access and no deployment secret. The July logs cover the first
+> install; the server was reinstalled on 12 October 2026 to host several sites, and
+> [`docs/architecture-actuelle.md`](docs/architecture-actuelle.md) describes it as it runs today. Docs are in French.
 
-Design, secure, and evolve a complete infrastructure — from a bare server up to container orchestration — applying real production practices: least privilege, infrastructure as code, monitoring, CI/CD.
+## Le but
 
-This repo serves both as a **technical training ground** and as **verifiable proof of skills**: nothing here is simulated. The server is genuinely online, genuinely targeted by bots like any exposed server, and genuinely hardened in response.
+Construire, sécuriser et faire grandir une infrastructure complète, d'un serveur nu jusqu'à l'orchestration de conteneurs, avec
+les pratiques de la production : le moindre privilège, la configuration décrite par du code, la supervision, le déploiement
+continu.
 
-## 🗺️ Architecture
+Rien n'est simulé : le serveur est vraiment en ligne, vraiment visé par des robots comme tout serveur exposé, et durci en
+réponse à ce que montrent ses journaux.
+
+## Le serveur aujourd'hui
 
 ```mermaid
 flowchart LR
-    User(["👤 Visitor"])
-    GitHub[["🐙 GitHub — public repo"]]
+    Visiteur(["👤 Visiteur"])
+    GitHub[["🐙 GitHub, dépôt public"]]
 
-    subgraph VPS["🖥️ OVH VPS — Debian 13"]
+    subgraph VPS["🖥️ VPS OVH, Debian 13"]
         direction TB
-        SSH["🔐 SSH — Ed25519 keys only, no root"]
-        FW["🛡️ ufw — deny by default"]
-        F2B["🚫 fail2ban + nftables"]
-        UPD["🔄 unattended-upgrades"]
-        Caddy["🔀 Caddy front — reverse proxy + HTTPS"]
-        Site["📦 Showcase site — read-only container"]
-        Honear["🎵 honear.fr — game server container"]
-        Timer["⏱️ systemd timer — pull & deploy"]
+        SSH["🔐 SSH par clé, sans root"]
+        FW["🛡️ ufw, tout refusé par défaut"]
+        F2B["🚫 fail2ban"]
+        UPD["🔄 Mises à jour automatiques"]
+        Caddy["🔀 Frontal Caddy, HTTPS"]
+        Site["📦 mateosan.fr"]
+        Honear["🎵 honear.fr"]
+        MCP["🤖 mcp.honear.fr"]
+        Timer["⏱️ Timer systemd, tire et publie"]
         Prom["📊 Prometheus"]
         Graf["📈 Grafana"]
     end
 
-    subgraph IaC["📜 Infrastructure as Code"]
+    subgraph IaC["📜 Infrastructure décrite par du code"]
         Ansible["Ansible"]
         Terraform["Terraform"]
     end
 
-    Cloud["☁️ AWS free tier (optional)"]
-
-    User -->|HTTPS| Caddy
+    Visiteur -->|HTTPS| Caddy
     Caddy --> Site
     Caddy --> Honear
-    Timer -->|fetches main every 2 min| GitHub
-    Timer -->|copies, then switches| Site
+    Caddy --> MCP
+    Honear -->|lit les listes, réseau interne| MCP
+    Timer -->|lit main toutes les 2 min| GitHub
+    Timer -->|pose, puis bascule| Site
     Graf -.-> Prom
-    Prom -.-> Site
-    Ansible -.configures.-> VPS
-    Terraform -.provisions.-> Cloud
+    Ansible -.configure.-> VPS
 
-    classDef done fill:#2ea043,stroke:#1a6b2b,color:#fff
-    classDef planned fill:#6e7681,stroke:#484f58,color:#fff
+    classDef fait fill:#2ea043,stroke:#1a6b2b,color:#fff
+    classDef prevu fill:#6e7681,stroke:#484f58,color:#fff
 
-    class SSH,FW,F2B,UPD,Caddy,Site,Honear,Timer done
-    class Prom,Graf,Ansible,Terraform,Cloud planned
+    class SSH,FW,F2B,UPD,Caddy,Site,Honear,MCP,Timer fait
+    class Prom,Graf,Ansible,Terraform prevu
 ```
 
-🟢 Done · ⚪ Planned
+🟢 Fait · ⚪ Prévu
 
-The same server also runs [honear](https://github.com/SNZMTO/honear), a multiplayer game, behind the shared Caddy front.
+Le serveur a été réinstallé le 12 octobre 2026 pour héberger plusieurs sites : un frontal Caddy partagé, seul à écouter 80 et
+443, et chaque site dans son conteneur, sur son propre réseau. Le détail, sans secret :
+[`docs/architecture-actuelle.md`](docs/architecture-actuelle.md).
 
-The showcase site itself, [mateosan.fr](https://mateosan.fr), lives in its own repository,
-[SNZMTO/mateosan.fr](https://github.com/SNZMTO/mateosan.fr): its pages, its container and its timer. This repo keeps the
-infrastructure log.
+## La feuille de route
 
-## 📋 Roadmap
+### Phase 1 : le durcissement Linux ✅ *juillet 2026*
 
-### Phase 1 — Linux Hardening ✅ *done*
-- [x] Audited the system configuration shipped by the hosting provider
-- [x] SSH authentication restricted to Ed25519 key pairs only
-- [x] `root` login fully disabled over SSH
-- [x] Firewall (`ufw`): incoming traffic denied by default, only SSH, 80 and 443 open
-- [x] `fail2ban`: progressive banning (doubled on each repeat offence, capped at one week), checked in the kernel's rule set — a missing `nftables` package meant bans were never actually applied, found and fixed
-- [x] Automatic security updates (`unattended-upgrades`), with a reboot at 04:00 when one is needed
+- [x] Auditer la configuration livrée par l'hébergeur
+- [x] SSH par clé seulement (une clé Ed25519), sans mot de passe, et `root` interdit en SSH
+- [x] Pare-feu (`ufw`) : tout refusé en entrée, sauf SSH, 80 et 443
+- [x] `fail2ban` : des bannissements progressifs (doublés à chaque récidive, une semaine au plus), vérifiés dans les règles du
+  noyau. Il manquait le paquet `nftables` : aucun bannissement ne s'appliquait. Trouvé, puis corrigé
+- [x] Les mises à jour automatiques (`unattended-upgrades`), avec un redémarrage la nuit quand il le faut
 
-### Phase 2 — Containerization ✅ *done*
-- [x] Docker & Docker Compose
-- [x] First containerized service: the showcase site, served by Caddy
+### Phases 2 et 3 : les conteneurs et le HTTPS ✅ *juillet 2026*
 
-### Phase 3 — Secure Web Exposure ✅ *done*
-- [x] Domain name + DNS
-- [x] Caddy reverse proxy + automatic HTTPS certificates (Let's Encrypt)
+- [x] Docker et Docker Compose
+- [x] Un nom de domaine et ses DNS
+- [x] Caddy en reverse proxy, avec des certificats HTTPS automatiques (Let's Encrypt)
 
-### Phase 4 — Continuous Deployment ✅ *done*
-- [x] Pull, not push: a systemd timer fetches the public repo every 2 minutes, instead of GitHub Actions connecting over SSH — no inbound access, no secret on the server (the trade-off is documented)
-- [x] A dedicated unprivileged user puts each new version next to the live one, then switches atomically; the last three versions are kept
-- [x] The timer never runs a script that comes from GitHub: its tools are installed on the server once
-- [x] Tested by hand first, then proven in real conditions through the logs
+### Phase 4 : le déploiement continu ✅ *juillet 2026, refait en octobre*
 
-### Next — Backups 📌
-- [ ] Caddy certificates, `/etc` configuration, future data
+- [x] Tirer plutôt que pousser : un timer systemd lit le dépôt public toutes les deux minutes, au lieu de laisser GitHub Actions
+  se connecter en SSH. Aucun accès entrant, aucun secret de déploiement (le compromis est documenté)
+- [x] Un utilisateur dédié, sans droits, pose chaque version à côté de celle en ligne, puis bascule d'un coup ; les trois
+  dernières restent
+- [x] Le timer n'exécute jamais un script venu de GitHub : ses outils sont installés une fois sur le serveur
+- [x] Essayé à la main d'abord, puis prouvé en conditions réelles, dans les journaux
 
-### Phase 5 — Observability 📌 *planned*
-- [ ] Prometheus (metrics) + Grafana (dashboards)
+### Un serveur pour plusieurs sites ✅ *octobre 2026*
 
-### Phase 6 — Ansible 📌 *planned*
-- [ ] Fully reproducible server configuration, driven from code
+- [x] Réinstallé le 12 octobre : un frontal Caddy partagé, des conteneurs sur des réseaux séparés, aucun autre port publié
+- [x] Le site vitrine part dans son propre dépôt, [SNZMTO/mateosan.fr](https://github.com/SNZMTO/mateosan.fr), avec son
+  conteneur et son timer
+- [x] Le blind test [Honear](https://github.com/SNZMTO/honear) et son [serveur MCP](https://github.com/SNZMTO/honear-mcp) y
+  tournent aussi
 
-### Phase 7 — Terraform 📌 *planned*
-- [ ] Infrastructure provisioning as code
+### Ensuite : les sauvegardes 📌 *en priorité*
 
-### Phase 8 — Public Cloud 📌 *optional*
-- [ ] Extension to AWS free tier
+- [ ] Les comptes des joueurs de Honear (adresses e-mail et scores), puis les certificats et la configuration
 
-### Phase 9 — Orchestration 📌 *optional*
-- [ ] Lightweight k3s / Kubernetes
+### Phase 5 : la supervision 📌 *prévue*
 
-## 🛡️ Security Measures in Place
+- [ ] Prometheus (les métriques) et Grafana (les tableaux de bord)
 
-| Measure | Status |
+### Phase 6 : Ansible 📌 *prévue*
+
+- [ ] Une configuration du serveur entièrement rejouable, depuis du code
+
+### Phase 7 : Terraform 📌 *prévue*
+
+- [ ] L'infrastructure décrite par du code
+
+### Phase 8 : le cloud public 📌 *facultative*
+
+- [ ] Une extension sur l'offre gratuite d'AWS
+
+### Phase 9 : l'orchestration 📌 *facultative*
+
+- [ ] k3s, un Kubernetes léger
+
+## Ce qui protège le serveur aujourd'hui
+
+| Mesure | État |
 |---|---|
-| Key-only SSH authentication (Ed25519, no password login) | ✅ |
-| `root` login disabled over SSH | ✅ |
-| SSH config versioned and independent from auto-generated files (`cloud-init`) | ✅ |
-| Firewall: deny by default, only SSH, 80 and 443 open | ✅ |
-| fail2ban with progressive bans, enforced in the kernel (`nftables`) | ✅ |
-| Automatic security updates | ✅ |
-| HTTPS with automatic certificates | ✅ |
-| Site container running as `nobody`, read-only, with no Linux capabilities and no published port | ✅ |
-| Deployment by pull: no inbound access, no secret on the server | ✅ |
-| Backups | ⏳ next |
+| SSH par clé seulement, pour un seul compte d'administration ; ni mot de passe ni `root` ; trois essais par connexion | ✅ |
+| La configuration SSH dans un fichier à part, que `cloud-init` ne réécrit pas | ✅ |
+| Pare-feu : tout refusé en entrée, sauf SSH, HTTP et HTTPS | ✅ |
+| fail2ban sur SSH | ✅ |
+| Les mises à jour automatiques de Debian et de Docker, et un redémarrage à 5 h quand un noyau neuf le demande | ✅ |
+| HTTPS avec des certificats automatiques, pour tous les domaines, par un seul frontal | ✅ |
+| Un seul conteneur publie des ports, le frontal : Docker les ouvre sans passer par ufw | ✅ |
+| Des conteneurs sans capacités Linux, en lecture seule, sous un utilisateur sans droits, chacun sur son réseau | ✅ |
+| Un déploiement par pull : aucun accès entrant, aucun secret de déploiement | ✅ |
+| Des journaux gardés six mois au plus, sans les visites | ✅ |
+| Des sauvegardes hors du serveur | ⏳ la prochaine étape |
 
-## 📁 Repo Structure
+## Le dépôt
 
 ```
 homelab/
-├── README.md        # this file
-└── docs/            # one detailed log per phase: audit, decisions, commands, pitfalls
+├── README.md                     # ce fichier
+└── docs/
+    ├── architecture-actuelle.md  # le serveur tel qu'il tourne depuis le 12 octobre 2026
+    └── …                         # un journal par étape de juillet : l'audit, les décisions, les commandes, les pièges
 ```
 
-The showcase site and its deployment (container, Caddy, systemd timer) live in
-[SNZMTO/mateosan.fr](https://github.com/SNZMTO/mateosan.fr); the machine-level configuration and the Caddy front shared with
-honear, in a separate repository (`vps`).
+Le site vitrine et sa mise en ligne (son conteneur, son Caddy, son timer systemd) vivent dans
+[SNZMTO/mateosan.fr](https://github.com/SNZMTO/mateosan.fr). La configuration de la machine et le frontal partagé vivent dans
+un dépôt privé, parce qu'ils donnent l'adresse du serveur.
 
-## 🧰 Tech Stack
+## Les outils
 
-**In place:** `Debian 13` · `OpenSSH` · `ufw` · `fail2ban` · `nftables` · `unattended-upgrades` · `Docker` · `Docker Compose` · `Caddy` · `Let's Encrypt` · `systemd timers`
+**En place :** `Debian 13` · `OpenSSH` · `ufw` · `fail2ban` · `nftables` · `unattended-upgrades` · `Docker` ·
+`Docker Compose` · `Caddy` · `Let's Encrypt` · `systemd timers`
 
-**Planned:** `Prometheus` · `Grafana` · `Ansible` · `Terraform` · `k3s`
+**Prévus :** `Prometheus` · `Grafana` · `Ansible` · `Terraform` · `k3s`
 
-## 📖 Background
+## D'où ça vient
 
-This project runs alongside the 42 curriculum, whose system projects cover the basics: Born2beRoot (a first hardened server, in a VM), Net_Practice (IP networking) and Inception (a Docker Compose stack). The goal here is to apply them to a real server exposed to the internet, and to go further, toward a complete and fully documented infrastructure.
+Ce projet accompagne le cursus de 42, dont les projets système posent les bases : Born2beRoot (un premier serveur durci, dans
+une machine virtuelle), Net_Practice (les réseaux IP) et Inception (une pile Docker Compose). Ici, je les applique à un vrai
+serveur exposé à internet, et je vais plus loin, vers une infrastructure complète et documentée.
+
+## Comment je l'ai fait
+
+En juillet, j'ai mené chaque étape moi-même, en SSH depuis mon PC, avec une IA en conversation pour m'expliquer les outils et
+leurs pièges : les journaux en gardent la trace, jusqu'au Caddyfile abîmé par un copier-coller depuis le chat. Depuis la
+réinstallation d'octobre, la configuration de la machine s'écrit en scripts avec Claude Code, et ses commits sont co-signés.
 
 ---
 
-*Each phase has its own detailed log in `docs/` (in French), with exact commands, pitfalls encountered, and the reasoning behind every technical choice.*
+*Chaque étape a son journal dans `docs/` : les commandes exactes, les pièges rencontrés et la raison de chaque choix.*

@@ -1,5 +1,8 @@
 # Phase 1 — Durcissement Linux : Pare-feu (ufw)
 
+> **Journal du 6 juillet 2026.** Il raconte la première installation du serveur, réinstallé le 12 octobre 2026
+> pour héberger plusieurs sites : ce qui tourne aujourd'hui est dans [architecture-actuelle.md](architecture-actuelle.md).
+
 > Suite de `phase1-ssh-hardening.md`. Objectif : passer d'un serveur où tout port ouvert par un service est directement joignable depuis Internet, à une politique stricte "tout refuser en entrée, sauf exception explicite".
 
 ## Contexte

@@ -1,5 +1,8 @@
 # Phases 2 & 3 — Conteneurisation & mise en ligne du portfolio (Docker + Caddy + HTTPS)
 
+> **Journal du 8 juillet 2026.** Il raconte la première installation du serveur, réinstallé le 12 octobre 2026
+> pour héberger plusieurs sites : ce qui tourne aujourd'hui est dans [architecture-actuelle.md](architecture-actuelle.md).
+
 > Transition Phase 1 → Phases 2/3, anticipée pour un besoin concret : mettre en ligne le site vitrine `mateosan.fr` sur le VPS durci. Couvre l'installation de Docker, la configuration DNS, l'ouverture du pare-feu, le déploiement via Caddy et l'obtention automatique du certificat HTTPS.
 
 ## Contexte
@@ -70,6 +73,11 @@ sudo ufw status verbose
 - Port 80 : nécessaire au challenge ACME de Let's Encrypt + redirection HTTP→HTTPS.
 - Port 443 : trafic web chiffré.
 - `comment` : documente la raison de chaque règle (lisible plus tard dans `ufw status`).
+
+> **Piège à connaître** (ajouté en octobre) : un port publié par Docker (`ports:` dans le compose) ne passe pas par ufw.
+> Docker écrit ses propres règles dans le pare-feu du noyau, avant celles d'ufw : c'est lui, pas ufw, qui laisse passer le
+> trafic vers un port publié. D'où la règle d'aujourd'hui : un seul conteneur publie des ports, le frontal Caddy (80 et 443),
+> et aucun autre service ne peut s'exposer par erreur.
 
 ---
 
@@ -172,6 +180,9 @@ Corrections demandées à Claude Design suite à ce constat :
 
 Three.js, React et Babel sont chargés depuis des **CDN publics** (cdnjs / unpkg) en HTTPS. Fonctionne tant que le visiteur a accès à Internet (cas normal). Une version 100 % auto-hébergée (sans CDN) est possible si zéro dépendance externe devient un objectif.
 
+> Fait en octobre : le site ne charge plus rien d'ailleurs, three.js et les polices compris
+> ([SNZMTO/mateosan.fr](https://github.com/SNZMTO/mateosan.fr)).
+
 ---
 
 ## État final
@@ -196,3 +207,4 @@ Three.js, React et Babel sont chargés depuis des **CDN publics** (cdnjs / unpkg
 - Itérations restantes sur la scène 3D (animations, gyroscope mobile, performances).
 - Option : auto-héberger Three.js/React (supprimer la dépendance CDN).
 - Suite de la roadmap : CI/CD (Phase 4) pour automatiser le déploiement du site via GitHub Actions, puis observabilité (Phase 5).
+  Ce sera finalement un pull par timer systemd, sans GitHub Actions : voir la phase 4.
