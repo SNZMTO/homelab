@@ -40,7 +40,7 @@ flowchart LR
     Caddy --> Site
     Caddy --> Honear
     Timer -->|fetches main every 2 min| GitHub
-    Timer -->|builds, then switches| Site
+    Timer -->|copies, then switches| Site
     Graf -.-> Prom
     Prom -.-> Site
     Ansible -.configures.-> VPS
@@ -56,6 +56,10 @@ flowchart LR
 🟢 Done · ⚪ Planned
 
 The same server also runs [honear](https://github.com/SNZMTO/honear), a multiplayer game, behind the shared Caddy front.
+
+The showcase site itself, [mateosan.fr](https://mateosan.fr), lives in its own repository,
+[SNZMTO/mateosan.fr](https://github.com/SNZMTO/mateosan.fr): its pages, its container and its timer. This repo keeps the
+infrastructure log.
 
 ## 📋 Roadmap
 
@@ -77,7 +81,7 @@ The same server also runs [honear](https://github.com/SNZMTO/honear), a multipla
 
 ### Phase 4 — Continuous Deployment ✅ *done*
 - [x] Pull, not push: a systemd timer fetches the public repo every 2 minutes, instead of GitHub Actions connecting over SSH — no inbound access, no secret on the server (the trade-off is documented)
-- [x] A dedicated unprivileged user builds each new version next to the live one, then switches atomically; the last three versions are kept
+- [x] A dedicated unprivileged user puts each new version next to the live one, then switches atomically; the last three versions are kept
 - [x] The timer never runs a script that comes from GitHub: its tools are installed on the server once
 - [x] Tested by hand first, then proven in real conditions through the logs
 
@@ -119,15 +123,12 @@ The same server also runs [honear](https://github.com/SNZMTO/honear), a multipla
 ```
 homelab/
 ├── README.md        # this file
-├── docs/            # one detailed log per phase: audit, decisions, commands, pitfalls
-├── deploiement/     # how the showcase site is built and deployed: container, Caddy, systemd timer
-├── site/            # the showcase site
-├── legal/           # its legal pages
-├── dependances/     # local copies of what the site would otherwise load from CDNs
-└── publier.ps1      # publishes a new version of the site from the PC
+└── docs/            # one detailed log per phase: audit, decisions, commands, pitfalls
 ```
 
-The machine-level configuration and the Caddy front shared with honear live in a separate repository (`vps`).
+The showcase site and its deployment (container, Caddy, systemd timer) live in
+[SNZMTO/mateosan.fr](https://github.com/SNZMTO/mateosan.fr); the machine-level configuration and the Caddy front shared with
+honear, in a separate repository (`vps`).
 
 ## 🧰 Tech Stack
 
