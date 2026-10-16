@@ -1,5 +1,8 @@
 # Phase 1 — Durcissement Linux : Accès SSH
 
+> **Journal du 6 juillet 2026.** Il raconte la première installation du serveur, réinstallé le 12 octobre 2026
+> pour héberger plusieurs sites : ce qui tourne aujourd'hui est dans [architecture-actuelle.md](architecture-actuelle.md).
+
 > Journal technique du homelab. Objectif de cette partie : sécuriser l'accès distant au VPS avant toute mise en production de services.
 
 ## Contexte
@@ -115,7 +118,8 @@ sudo systemctl restart sshd                              # application (ne coupe
 
 - [x] Authentification par mot de passe désactivée globalement
 - [x] Connexion `root` interdite en SSH, quelle que soit la méthode
-- [x] Seule l'authentification par clé Ed25519 est acceptée
+- [x] Seule l'authentification par clé est acceptée (la mienne est une Ed25519 ; imposer ce type de clé demanderait en plus
+  `PubkeyAcceptedAlgorithms`)
 - [x] Configuration versionnée dans un fichier dédié, indépendant de `cloud-init`
 
 ## Points clés pour un entretien technique

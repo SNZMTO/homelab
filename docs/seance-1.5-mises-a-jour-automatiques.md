@@ -1,5 +1,8 @@
 # Séance 1.5 — Mises à jour automatiques (clôture Phase 1)
 
+> **Journal du 8 juillet 2026.** Il raconte la première installation du serveur, réinstallé le 12 octobre 2026
+> pour héberger plusieurs sites : ce qui tourne aujourd'hui est dans [architecture-actuelle.md](architecture-actuelle.md).
+
 **Objectif :** faire en sorte que le serveur applique tout seul les correctifs de
 sécurité, pour que le durcissement des séances 1.1→1.4 ne repose pas sur un système
 qui pourrit avec des failles connues. Porte blindée sur un mur en carton = inutile.
@@ -25,6 +28,11 @@ quotidiennement par `apt-daily-upgrade.timer` (systemd).
 | Périmètre | **Sécurité seulement** | Les paquets `Debian-Security` sont des rétroportages minimaux du correctif : risque de casse quasi nul. Le reste (bugfix, montées de version) reste appliqué à la main, quand je suis devant. |
 | Reboot auto | **Activé, 04:00** | Le noyau / la libc ne prennent effet qu'après reboot. Condition bloquante vérifiée : le conteneur Caddy a `restart: unless-stopped`, donc le site remonte seul au boot. |
 | Docker / trixie-updates | **Exclus de l'auto** | Confirmé par le dry-run (pin -32768). Je garde la main sur le moteur de conteneurs pour éviter qu'une MàJ nocturne casse le site. |
+
+> **Correction (octobre 2026)** : l'origine `label=Debian`, active par défaut (voir les « Allowed origins » plus bas), installe
+> aussi les mises à jour de la version stable de Debian, ses versions de maintenance, pas seulement la sécurité. Le périmètre
+> réel était donc « sécurité et stable ». Depuis la réinstallation, Docker se met à jour seul lui aussi, et le redémarrage se
+> fait à 5 h.
 
 ## État constaté avant modification (on regarde avant de toucher)
 
@@ -99,10 +107,11 @@ systemctl is-enabled apt-daily.timer apt-daily-upgrade.timer   # attendu : enabl
 ## Résultat
 
 **Phase 1 (durcissement) terminée.** Le serveur :
-- n'accepte le SSH que par clé Ed25519, root SSH bloqué (1.2) ;
+- n'accepte le SSH que par clé (une Ed25519), root SSH bloqué (1.2) ;
 - filtre tout sauf SSH/80/443 via ufw (1.3) ;
 - bannit les tentatives répétées via fail2ban + nftables (1.4) ;
-- **applique seul les correctifs de sécurité et reboote à 04:00 si nécessaire (1.5)**,
+- **applique seul les correctifs de sécurité (et les mises à jour de la stable, voir la correction plus haut), et reboote à
+  04:00 si nécessaire (1.5)**,
   le portfolio remontant automatiquement grâce à `restart: unless-stopped`.
 
 **Prochaine étape :** documenter la session Docker / déploiement / HTTPS (Caddy +

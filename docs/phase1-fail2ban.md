@@ -1,5 +1,8 @@
 # Phase 1 — Durcissement Linux : fail2ban
 
+> **Journal du 6 juillet 2026.** Il raconte la première installation du serveur, réinstallé le 12 octobre 2026
+> pour héberger plusieurs sites : ce qui tourne aujourd'hui est dans [architecture-actuelle.md](architecture-actuelle.md).
+
 > Suite de `phase1-ssh-hardening.md` et `phase1-firewall-ufw.md`. Objectif : compléter le filtrage par port (`ufw`) par une surveillance comportementale — bannir automatiquement les IP qui multiplient les échecs de connexion SSH.
 
 ## Contexte
@@ -43,7 +46,7 @@ sudo fail2ban-client get sshd findtime   # 600 (10 min)
 sudo fail2ban-client get sshd maxretry   # 5
 ```
 
-**Analyse** : ces valeurs par défaut sont efficaces contre les bots génériques (qui ne reviennent jamais spécifiquement après un bannissement, ils passent simplement à l'IP suivante d'une liste), mais insuffisantes contre un attaquant humain motivé et patient, pour qui 10 minutes d'attente ne représente aucun frein réel.
+**Analyse** : ces valeurs par défaut sont efficaces contre les bots génériques (qui ne reviennent jamais spécifiquement après un bannissement, ils passent simplement à l'IP suivante d'une liste), mais insuffisantes contre un attaquant humain motivé et patient, pour qui 10 minutes d'attente ne représentent aucun frein réel.
 
 ---
 

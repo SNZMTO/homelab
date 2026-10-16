@@ -1,5 +1,8 @@
 # Phase 4 — CI/CD : déploiement automatique du site (pull par timer systemd)
 
+> **Journal du 8 juillet 2026.** Il raconte la première installation du serveur, réinstallé le 12 octobre 2026
+> pour héberger plusieurs sites : ce qui tourne aujourd'hui est dans [architecture-actuelle.md](architecture-actuelle.md).
+
 **Objectif :** automatiser la mise en ligne du portfolio. Un `git push` sur GitHub
 suffit ; le VPS met le site à jour tout seul, sans intervention. Fin du `scp` manuel.
 
@@ -19,7 +22,7 @@ réduction de surface) :
   déploiement ne quitte le serveur.
 - **Confinement du rayon de souffle** : si le compte GitHub est compromis,
   l'attaquant peut salir le repo mais n'a **aucun chemin vers le VPS**.
-- Repo public → `git pull` anonyme en lecture seule → **zéro secret sur le VPS**.
+- Repo public → `git pull` anonyme en lecture seule → **zéro secret de déploiement sur le VPS**.
 
 Sous-variante retenue : **B1, pull par polling** (timer systemd toutes les 2 min),
 plutôt que B2 (webhook), car le webhook rouvrirait un service exposé. Pour un
@@ -33,7 +36,8 @@ Créé sans privilèges, principe du moindre privilège appliqué à un robot :
 sudo useradd --system --create-home --home-dir /home/deploy --shell /usr/sbin/nologin deploy
 ```
 - Pas de sudo, pas de mot de passe, `nologin` (aucun shell interactif possible).
-- Jamais ajouté aux `AllowUsers` SSH → aucune connexion entrante sous cette identité.
+- Aucune clé SSH → aucune connexion entrante possible sous cette identité. (Il n'y avait pas encore de liste `AllowUsers` ;
+  depuis la réinstallation d'octobre, elle n'admet plus que le compte d'administration.)
 - Seul systemd lance des processus sous `deploy`, localement.
 
 ## Nettoyage préalable — dissonance repo / VPS (piège majeur)
@@ -209,13 +213,13 @@ sudo journalctl -u deploy-site.service -n 20     # logs des déploiements
 
 ## Reste à faire / améliorations possibles
 
-- Auto-hébergement des Google Fonts (voir `todo-fonts-autohebergement.md`), désormais
-  simple commit dans le flux CI/CD.
+- Auto-hébergement des Google Fonts : fait en octobre, avec le déménagement du site dans son
+  propre dépôt.
 - Optionnel : re-poser groupe `web` + setgid sur le dossier si `debian` doit éditer à la
   main (dette mineure documentée ci-dessus).
 - Évolution vers un « vrai » CI/CD industriel (webhook, tests, build) en phase ultérieure.
 
 ## Prochaine étape
 
-Sauvegardes (certifs Caddy, configs `/etc`, données futures) — à faire avant d'ajouter
-des services stateful (Phase 5 observabilité).
+Sauvegardes : d'abord les comptes des joueurs de Honear (en ligne depuis), puis les certifs
+Caddy et les configs `/etc`.
