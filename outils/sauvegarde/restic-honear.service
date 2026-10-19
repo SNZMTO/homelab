@@ -1,0 +1,38 @@
+# La sauvegarde de Honear (/usr/local/lib/restic-honear/sauvegarder.sh), lancée chaque nuit par restic-honear.timer. En root,
+# pour lire les dossiers des conteneurs, mais sans autre droit que celui de lire : il n'écrit que dans son cache. Ses réglages
+# viennent de /etc/restic/honear.env, en 0600. Posé dans /etc/systemd/system (docs/sauvegardes.md).
+[Unit]
+Description=Honear : sauvegarde les comptes des joueurs et les listes du MCP, avec restic
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+EnvironmentFile=/etc/restic/honear.env
+Environment=RESTIC_CACHE_DIR=/var/cache/restic-honear
+CacheDirectory=restic-honear
+CacheDirectoryMode=0700
+ExecStart=/bin/sh /usr/local/lib/restic-honear/sauvegarder.sh
+# Le jeu passe avant : la sauvegarde prend le processeur et le disque quand ils sont libres.
+Nice=10
+CPUWeight=20
+IOWeight=20
+# Lire toute la machine, n'écrire que dans son cache.
+CapabilityBoundingSet=CAP_DAC_READ_SEARCH
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=read-only
+PrivateTmp=yes
+PrivateDevices=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectKernelLogs=yes
+ProtectControlGroups=yes
+ProtectClock=yes
+ProtectHostname=yes
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+RestrictNamespaces=yes
+RestrictRealtime=yes
+RestrictSUIDSGID=yes
+LockPersonality=yes
+SystemCallArchitectures=native

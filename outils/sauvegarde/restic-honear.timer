@@ -1,0 +1,11 @@
+# Chaque nuit à 4 h, quand personne ne joue et avant le redémarrage de 5 h : la sauvegarde de Honear (restic-honear.service).
+# Persistent=true : une nuit manquée, serveur éteint, se rattrape au démarrage suivant. Posé dans /etc/systemd/system.
+[Unit]
+Description=Honear : la sauvegarde de chaque nuit
+
+[Timer]
+OnCalendar=*-*-* 04:00:00
+Persistent=true
+
+[Install]
+WantedBy=timers.target

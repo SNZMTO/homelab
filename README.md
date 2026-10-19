@@ -105,7 +105,8 @@ Le serveur a été réinstallé le 12 octobre 2026 pour héberger plusieurs site
 
 ### Ensuite : les sauvegardes 📌 *en priorité*
 
-- [ ] Les comptes des joueurs de Honear (adresses e-mail et scores), puis les certificats et la configuration
+- [ ] Les comptes des joueurs de Honear (adresses e-mail et scores), puis les certificats et la configuration. La
+  procédure est prête, pas encore installée : [`docs/sauvegardes.md`](docs/sauvegardes.md)
 
 ### Phase 5 : la supervision 📌 *prévue*
 
@@ -141,7 +142,7 @@ Le serveur a été réinstallé le 12 octobre 2026 pour héberger plusieurs site
 | Des conteneurs sans capacités Linux, en lecture seule, sous un utilisateur sans droits, chacun sur son réseau | ✅ |
 | Un déploiement par pull : aucun accès entrant, aucun secret de déploiement | ✅ |
 | Des journaux gardés six mois au plus, sans les visites | ✅ |
-| Des sauvegardes hors du serveur | ⏳ la prochaine étape |
+| Des sauvegardes hors du serveur | ⏳ procédure prête, pas encore installée |
 
 ## Le dépôt
 
@@ -150,9 +151,11 @@ homelab/
 ├── README.md                     # ce fichier
 ├── docs/
 │   ├── architecture-actuelle.md  # le serveur tel qu'il tourne depuis le 12 octobre 2026
+│   ├── sauvegardes.md            # les sauvegardes des comptes des joueurs, et leur test de restauration
 │   └── …                         # un journal par étape de juillet : l'audit, les décisions, les commandes, les pièges
 └── outils/                       # des fichiers prêts à installer sur le serveur, pas encore installés
-    └── agent/                    # la mise en ligne de Honear, seul geste en root d'un agent IA
+    ├── agent/                    # la mise en ligne de Honear, seul geste en root d'un agent IA
+    └── sauvegarde/               # restic, son service et son timer de chaque nuit
 ```
 
 Le site vitrine et sa mise en ligne (son conteneur, son Caddy, son timer systemd) vivent dans

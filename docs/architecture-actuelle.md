@@ -187,7 +187,9 @@ enveloppe, une deuxième règle.
 ## Ce qui reste à faire
 
 - **Les sauvegardes, d'abord.** Les comptes des joueurs de Honear (leurs adresses e-mail et leurs scores) ne sont encore
-  sauvegardés nulle part ailleurs que sur le serveur. Puis les certificats et la configuration.
+  sauvegardés nulle part ailleurs que sur le serveur. La procédure est prête, pas encore installée : restic, chaque nuit,
+  chiffré et hors du serveur, avec un test de restauration daté ([sauvegardes.md](sauvegardes.md)). Puis les certificats et
+  la configuration.
 - **Sortir l'agent IA de root.** La procédure est prête ([L'agent IA sur le serveur](#lagent-ia-sur-le-serveur)), pas encore
   appliquée.
 - La supervision (Prometheus, Grafana), une configuration rejouable (Ansible), l'infrastructure décrite par du code
