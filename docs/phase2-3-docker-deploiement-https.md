@@ -24,6 +24,22 @@ head -20 get-docker.sh        # vérif : bien le script officiel Docker
 sudo sh get-docker.sh
 ```
 
+> **Correction du 19 octobre 2026.** `head -20` ne vérifie rien. Il affiche les vingt premières lignes, des commentaires, d'un script qui en compte plusieurs centaines : tout le reste, qui s'exécute en root, n'a pas été lu. Et même lu en entier, un script téléchargé ne prouve pas d'où il vient : personne ne le signe, et HTTPS ne garantit que le transport depuis get.docker.com. La méthode recommandée est le dépôt apt officiel de Docker : la clé de Docker est posée une fois, son empreinte vérifiée, et `signed-by` la réserve à ce seul dépôt ; ensuite, apt vérifie la signature de chaque paquet, à l'installation comme à chaque mise à jour.
+>
+> ```bash
+> sudo apt-get install ca-certificates curl gnupg
+> sudo install -m 0755 -d /etc/apt/keyrings
+> sudo curl -fsSL https://download.docker.com/linux/debian/gpg -o /etc/apt/keyrings/docker.asc
+> sudo chmod a+r /etc/apt/keyrings/docker.asc
+> gpg --show-keys /etc/apt/keyrings/docker.asc   # l'empreinte publiée par Docker : 9DC8 5822 9FC7 DD38 854A E2D8 8D81 803C 0EBF CD88
+> echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/debian $(. /etc/os-release && echo "$VERSION_CODENAME") stable" |
+>   sudo tee /etc/apt/sources.list.d/docker.list >/dev/null
+> sudo apt-get update
+> sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+> ```
+>
+> Le script pose d'ailleurs ce même dépôt : ce qui change, c'est que rien ne s'exécute plus en root sans avoir été vérifié. Le journal ci-dessus garde ce qui a été fait en juillet ; cette note dit ce qu'il aurait fallu faire.
+
 Résultat : Docker Engine + CLI + Compose installés, daemon activé au boot. Version serveur et client répondent.
 
 > Note : le script lui-même indique « not recommended for production ». Acceptable pour un homelab ; à remplacer par une install via dépôt APT avec versions figées lors de l'industrialisation (Phase 6 / Ansible).
