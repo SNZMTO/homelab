@@ -20,8 +20,27 @@ Deux modèles possibles :
 réduction de surface) :
 - Aucun accès entrant à ouvrir : le SSH du VPS reste fermé, aucune clé de
   déploiement ne quitte le serveur.
-- **Confinement du rayon de souffle** : si le compte GitHub est compromis,
-  l'attaquant peut salir le repo mais n'a **aucun chemin vers le VPS**.
+- **Le rayon de souffle d'un compte GitHub volé.** *Corrigé le 19 octobre 2026 : ce
+  journal disait que l'attaquant n'aurait « aucun chemin vers le VPS ». C'est faux.* Le
+  serveur publie ce qu'il tire de GitHub, dans les deux minutes : qui pousse sur `main`
+  met en ligne ce qu'il veut, sans jamais se connecter au VPS. Le pull ferme la porte
+  d'entrée ; il ne rend pas sûr ce qui arrive par elle. Et aujourd'hui, ce qui se lance
+  en root depuis un clone (`sudo sh deploiement/mettre-en-ligne.sh`) vient de GitHub,
+  lui aussi ([l'agent IA sur le serveur](architecture-actuelle.md#lagent-ia-sur-le-serveur)).
+  Les parades, qu'aucune ligne de ce journal ne prouve (la signature n'est pas encore
+  demandée : `deploiement/publier.sh` de SNZMTO/mateosan.fr publie `main` tel quel) :
+  - **protéger `main` et le compte** : ni push forcé ni suppression sur `main`, et la
+    double authentification (2FA) sur le compte GitHub. Le vol devient plus difficile,
+    pas impossible : un compte volé peut lever ses propres protections ;
+  - **des commits signés, vérifiés avant publication** : le serveur garde la clé
+    publique qui signe, hors du dépôt, et ne publie que si `git verify-commit` accepte le
+    dernier commit de `main`, et si `main` n'a pas reculé (une signature ne date pas un
+    commit). Un compte volé ne fabrique pas cette signature. Les fusions se signent donc
+    en local : un commit fait sur github.com porte la signature de GitHub, que le
+    serveur ne doit pas accepter ;
+  - **une clé de déploiement en lecture seule** pour ce que le serveur lit sur GitHub
+    hors d'un dépôt public (la configuration de la machine, par exemple) : si le serveur
+    tombe, elle ne permet d'écrire nulle part.
 - Repo public → `git pull` anonyme en lecture seule → **zéro secret de déploiement sur le VPS**.
 
 Sous-variante retenue : **B1, pull par polling** (timer systemd toutes les 2 min),
@@ -200,8 +219,10 @@ sudo journalctl -u deploy-site.service -n 20     # logs des déploiements
 ## Points clés pour un entretien technique
 
 - *« J'ai choisi une architecture pull plutôt que push pour mon déploiement : le
-  serveur va chercher les nouveautés, donc aucun accès entrant à ouvrir et le rayon de
-  souffle d'un compte GitHub compromis est confiné au repo. »*
+  serveur va chercher les nouveautés, donc aucun accès entrant à ouvrir. J'avais écrit
+  qu'un compte GitHub volé restait confiné au dépôt : c'est faux, puisque le serveur
+  publie ce qu'il y lit. La barrière, c'est la signature des commits, vérifiée par le
+  serveur avant de publier. »*
 - *« J'ai découvert que mon repo contenait l'export brut de l'outil de design et non
   l'artefact déployable — ce qui m'a fait comprendre concrètement pourquoi un pipeline
   sépare le code source de l'artefact de build. »*
