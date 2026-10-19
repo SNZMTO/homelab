@@ -184,6 +184,16 @@ secrets hors dépôt, et ne tire rien lui-même : l'enveloppe le lance sur un co
 dossiers des données refusent `agent` (`sudo -u agent cat` doit échouer). Le MCP suit le même modèle : une deuxième
 enveloppe, une deuxième règle.
 
+**Après une réécriture voulue de `main`.** L'histoire de Honear a déjà été réécrite une fois (SNZMTO/mateosan.fr@2d1cee8, le
+18 octobre 2026). L'enveloppe refuse alors : la nouvelle histoire ne descend plus de la version posée. Depuis le compte
+d'administration, et lui seul, puisqu'il faut root, on la fait repartir du nouveau `main` ; elle en vérifiera encore la
+signature avant de le mettre en ligne :
+
+```sh
+sudo git -C /var/lib/honear-mise-en-ligne/honear fetch --quiet origin +refs/heads/main:refs/remotes/origin/main
+sudo git -C /var/lib/honear-mise-en-ligne/honear checkout --quiet --detach origin/main
+```
+
 ## Ce qui reste à faire
 
 - **Les sauvegardes, d'abord.** Les comptes des joueurs de Honear (leurs adresses e-mail et leurs scores) ne sont encore
