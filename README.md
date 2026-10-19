@@ -148,9 +148,11 @@ Le serveur a été réinstallé le 12 octobre 2026 pour héberger plusieurs site
 ```
 homelab/
 ├── README.md                     # ce fichier
-└── docs/
-    ├── architecture-actuelle.md  # le serveur tel qu'il tourne depuis le 12 octobre 2026
-    └── …                         # un journal par étape de juillet : l'audit, les décisions, les commandes, les pièges
+├── docs/
+│   ├── architecture-actuelle.md  # le serveur tel qu'il tourne depuis le 12 octobre 2026
+│   └── …                         # un journal par étape de juillet : l'audit, les décisions, les commandes, les pièges
+└── outils/                       # des fichiers prêts à installer sur le serveur, pas encore installés
+    └── agent/                    # la mise en ligne de Honear, seul geste en root d'un agent IA
 ```
 
 Le site vitrine et sa mise en ligne (son conteneur, son Caddy, son timer systemd) vivent dans
