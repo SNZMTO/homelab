@@ -148,9 +148,9 @@ homelab/
 │   ├── architecture-actuelle.md  # the server as it has been running since 12 October 2026
 │   ├── sauvegardes.md            # backups of the players' accounts, and their restore test
 │   └── …                         # one log per step from July: the audit, the decisions, the commands, the pitfalls
-└── outils/                       # files ready to install on the server, not installed yet
+└── tools/                        # files ready to install on the server, not installed yet
     ├── agent/                    # putting Honear online, the only thing an AI agent does as root
-    └── sauvegarde/               # restic, its service and its nightly timer
+    └── backup/                   # restic, its service and its nightly timer
 ```
 
 The showcase site and its deployment (its container, its Caddy, its systemd timer) live in

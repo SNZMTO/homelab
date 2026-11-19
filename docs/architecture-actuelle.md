@@ -136,12 +136,12 @@ id agent             # uid=…(agent) gid=…(agent) groupes=…(agent) : ni sud
 sudo -iu agent       # les sessions de Claude Code se lancent d'ici, dans les clones de ce compte
 ```
 
-**3. Le script enveloppe**, [`outils/agent/honear-mettre-en-ligne.sh`](../outils/agent/honear-mettre-en-ligne.sh), posé
+**3. Le script enveloppe**, [`tools/agent/honear-deploy.sh`](../tools/agent/honear-deploy.sh), posé
 depuis un clone de ce dépôt. Il tire `main` dans `/var/lib/honear-mise-en-ligne`, à root, vérifie la signature et refuse un
 `main` qui recule, puis lance la mise en ligne de ce clone-là, jamais de celui de l'agent.
 
 ```sh
-sudo install -o root -g root -m 0755 outils/agent/honear-mettre-en-ligne.sh /usr/local/sbin/honear-mettre-en-ligne
+sudo install -o root -g root -m 0755 tools/agent/honear-deploy.sh /usr/local/sbin/honear-mettre-en-ligne
 sudo install -d -o root -g root -m 0700 /var/lib/honear-mise-en-ligne
 sudo install -d -o root -g root -m 0755 /etc/honear-mise-en-ligne
 # La clé publique de l'étape 1 (signature_git.pub, copiée sur le serveur), au format des signataires de ssh-keygen.

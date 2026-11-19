@@ -154,9 +154,9 @@ homelab/
 │   ├── architecture-actuelle.md  # le serveur tel qu'il tourne depuis le 12 octobre 2026
 │   ├── sauvegardes.md            # les sauvegardes des comptes des joueurs, et leur test de restauration
 │   └── …                         # un journal par étape de juillet : l'audit, les décisions, les commandes, les pièges
-└── outils/                       # des fichiers prêts à installer sur le serveur, pas encore installés
+└── tools/                        # des fichiers prêts à installer sur le serveur, pas encore installés
     ├── agent/                    # la mise en ligne de Honear, seul geste en root d'un agent IA
-    └── sauvegarde/               # restic, son service et son timer de chaque nuit
+    └── backup/                   # restic, son service et son timer de chaque nuit
 ```
 
 Le site vitrine et sa mise en ligne (son conteneur, son Caddy, son timer systemd) vivent dans

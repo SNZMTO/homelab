@@ -1,7 +1,7 @@
 # Les sauvegardes : les comptes des joueurs de Honear d'abord
 
 > **Procédure prête, pas encore installée (19 octobre 2026).** Les fichiers sont dans
-> [`outils/sauvegarde/`](../outils/sauvegarde/) ; rien n'est encore posé sur le serveur, et aucune sauvegarde n'existe.
+> [`tools/backup/`](../tools/backup/) ; rien n'est encore posé sur le serveur, et aucune sauvegarde n'existe.
 
 ## Pourquoi c'est la priorité
 
@@ -15,18 +15,18 @@ listes que le MCP enregistre sont dans le même cas. Les certificats et la confi
 - **Avec quoi** : [restic](https://restic.net), le paquet de Debian. Il chiffre sur le serveur, avant l'envoi : le stockage
   ne voit que des blocs illisibles. Il n'envoie que ce qui a changé.
 - **Où** : hors du serveur, et dans l'Union européenne : un serveur SFTP, ou un stockage objet compatible S3. Le choix reste à
-  faire ; `honear.env.exemple` montre les deux.
+  faire ; `honear.env.example` montre les deux.
 - **Quand** : chaque nuit à 4 h, quand personne ne joue et avant le redémarrage de 5 h. Une nuit manquée, serveur éteint, se
   rattrape au démarrage suivant (`Persistent=true`).
 - **Combien de temps** : `restic forget --keep-daily 7 --keep-weekly 4 --keep-monthly 6 --prune`, soit une sauvegarde par jour
   pendant une semaine, une par semaine pendant un mois, une par mois pendant six mois. Au-delà, plus rien.
 
-| Fichier de `outils/sauvegarde/` | Son rôle | Posé dans |
+| Fichier de `tools/backup/` | Son rôle | Posé dans |
 |---|---|---|
-| `sauvegarder.sh` | vérifie ses réglages, sauvegarde, élague | `/usr/local/lib/restic-honear/` |
+| `backup.sh` | vérifie ses réglages, sauvegarde, élague | `/usr/local/lib/restic-honear/` |
 | `restic-honear.service` | le lance en root, sans autre droit que de lire ; n'écrit que dans son cache | `/etc/systemd/system/` |
 | `restic-honear.timer` | chaque nuit à 4 h, `Persistent=true` | `/etc/systemd/system/` |
-| `honear.env.exemple` | le modèle de ses réglages, sans secret | `/etc/restic/honear.env`, en 0600 |
+| `honear.env.example` | le modèle de ses réglages, sans secret | `/etc/restic/honear.env`, en 0600 |
 
 ## Avant d'installer : les deux chemins
 
@@ -38,7 +38,7 @@ sudo docker ps --format '{{.Names}}'
 sudo docker inspect --format '{{range .Mounts}}{{.Source}} -> {{.Destination}}{{println}}{{end}}' nom-du-conteneur
 ```
 
-`sauvegarder.sh` refuse un dossier qui n'existe pas : un chemin faux donnerait, chaque nuit, une sauvegarde vide qui aurait
+`backup.sh` refuse un dossier qui n'existe pas : un chemin faux donnerait, chaque nuit, une sauvegarde vide qui aurait
 l'air de marcher.
 
 Si les comptes vivent dans une base SQLite, restic copie un fichier que le jeu peut écrire au même moment. La sauvegarde de
@@ -56,11 +56,11 @@ sudo install -d -m 0700 /etc/restic
 # sans lui, aucune sauvegarde ne se relit.
 sudo sh -c 'umask 077; head -c 32 /dev/urandom | base64 > /etc/restic/honear.mot-de-passe'
 sudo cat /etc/restic/honear.mot-de-passe
-sudo install -m 0600 outils/sauvegarde/honear.env.exemple /etc/restic/honear.env
-sudoedit /etc/restic/honear.env      # RESTIC_REPOSITORY, HONEAR_DONNEES, HONEAR_MCP_LISTES
+sudo install -m 0600 tools/backup/honear.env.example /etc/restic/honear.env
+sudoedit /etc/restic/honear.env      # RESTIC_REPOSITORY, HONEAR_DATA, HONEAR_MCP_LISTES
 sudo install -d -m 0755 /usr/local/lib/restic-honear
-sudo install -m 0755 outils/sauvegarde/sauvegarder.sh /usr/local/lib/restic-honear/
-sudo install -m 0644 outils/sauvegarde/restic-honear.service outils/sauvegarde/restic-honear.timer /etc/systemd/system/
+sudo install -m 0755 tools/backup/backup.sh /usr/local/lib/restic-honear/
+sudo install -m 0644 tools/backup/restic-honear.service tools/backup/restic-honear.timer /etc/systemd/system/
 # Le dépôt restic, une fois. En SFTP, c'est aussi là que root accepte la clé du serveur distant.
 sudo sh -c 'set -a; . /etc/restic/honear.env; set +a; restic init'
 sudo systemctl daemon-reload
@@ -83,10 +83,10 @@ set -a; . /etc/restic/honear.env; set +a
 restic snapshots --tag honear                            # la dernière sauvegarde, et sa date
 install -d -m 0700 /root/essai-restauration
 restic restore latest --tag honear --target /root/essai-restauration
-diff -rq "$HONEAR_DONNEES" "/root/essai-restauration$HONEAR_DONNEES"          # seul ce qui a changé depuis diffère
+diff -rq "$HONEAR_DATA" "/root/essai-restauration$HONEAR_DATA"          # seul ce qui a changé depuis diffère
 diff -rq "$HONEAR_MCP_LISTES" "/root/essai-restauration$HONEAR_MCP_LISTES"
 # Si les comptes sont dans une base SQLite (paquet sqlite3) : elle s'ouvre, et elle est saine.
-sqlite3 "/root/essai-restauration$HONEAR_DONNEES/la-base.db" 'PRAGMA integrity_check;'      # ok
+sqlite3 "/root/essai-restauration$HONEAR_DATA/la-base.db" 'PRAGMA integrity_check;'      # ok
 restic check --read-data                                 # le dépôt, et toutes ses données relues
 rm -rf /root/essai-restauration
 exit

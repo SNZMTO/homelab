@@ -1,0 +1,11 @@
+# Every night at 4 a.m., when nobody is playing and before the 5 a.m. reboot: Honear's backup (restic-honear.service).
+# Persistent=true: a missed night, with the server off, is caught up at the next boot. Installed in /etc/systemd/system.
+[Unit]
+Description=Honear: the nightly backup
+
+[Timer]
+OnCalendar=*-*-* 04:00:00
+Persistent=true
+
+[Install]
+WantedBy=timers.target
