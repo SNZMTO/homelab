@@ -9,6 +9,7 @@ pièges et ses raisons. Le serveur héberge aujourd'hui mon site, [mateosan.fr](
 > HTTPS, and continuous deployment by pull, with no inbound access and no deployment secret. The July logs cover the first
 > install; the server was reinstalled on 12 October 2026 to host several sites, and
 > [`docs/architecture-actuelle.md`](docs/architecture-actuelle.md) describes it as it runs today. Docs are in French.
+> Full English version: [README.en.md](README.en.md).
 
 ## Le but
 
