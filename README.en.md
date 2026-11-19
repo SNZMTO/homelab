@@ -174,7 +174,7 @@ real server exposed to the internet, and I go further, towards a complete and do
 
 In July, I carried out every step myself, over SSH from my PC, with an AI in a chat to explain the tools and their pitfalls:
 the logs keep the trace of it, down to the Caddyfile damaged by a copy-paste from the chat. Since the October reinstall, the
-machine's configuration is written as scripts with Claude Code, and its commits are co-signed.
+machine's configuration is written as scripts with Claude Code.
 
 ---
 

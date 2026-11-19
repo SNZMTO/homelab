@@ -180,7 +180,7 @@ serveur exposé à internet, et je vais plus loin, vers une infrastructure compl
 
 En juillet, j'ai mené chaque étape moi-même, en SSH depuis mon PC, avec une IA en conversation pour m'expliquer les outils et
 leurs pièges : les journaux en gardent la trace, jusqu'au Caddyfile abîmé par un copier-coller depuis le chat. Depuis la
-réinstallation d'octobre, la configuration de la machine s'écrit en scripts avec Claude Code, et ses commits sont co-signés.
+réinstallation d'octobre, la configuration de la machine s'écrit en scripts avec Claude Code.
 
 ---
 
